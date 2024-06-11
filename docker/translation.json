@@ -819,5 +819,23 @@
     "perform statistics on these columns": "对这些列执行统计",
     "report": "报告",
     "Output table statistics report.": "输出全表统计结果表"
+  },
+  "user/ss_compare:0.0.1": {
+    "user": "使用者",
+    "ss_compare": "ss_compare",
+    "compare two tables data": "比较两个表的数据",
+    "0.0.1": "0.0.1",
+    "tolerance": "容忍",
+    "two numbers to be equal if they are within tolerance": "如果在公差范围内，则两个数字相等",
+    "input_table": "input_table",
+    "input vertical table": "输入竖排表",
+    "alice_value": "alice_value",
+    "first column": "第一列",
+    "bob_value": "bob_value",
+    "second column": "第二列",
+    "alice_output": "alice_output",
+    "output table for alice": "alice的输出表",
+    "bob_output": "bob_out",
+    "output table for bob": "bob的输出表"
   }
 }
