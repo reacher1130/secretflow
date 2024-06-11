@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# TODO: add more components 用户自定义组件
+from secretflow.component.compare import ss_compare_comp
 from secretflow.component.io.identity import identity
 from secretflow.component.io.io import io_read_data, io_write_data
 from secretflow.component.ml.boost.sgb.sgb import sgb_predict_comp, sgb_train_comp
@@ -38,10 +40,10 @@ from secretflow.component.preprocessing.binning.vert_woe_binning import (
     vert_woe_binning_comp,
 )
 from secretflow.component.preprocessing.data_prep.psi import psi_comp
-from secretflow.component.preprocessing.data_prep.union import union_comp
 from secretflow.component.preprocessing.data_prep.train_test_split import (
     train_test_split_comp,
 )
+from secretflow.component.preprocessing.data_prep.union import union_comp
 from secretflow.component.preprocessing.filter.condition_filter import (
     condition_filter_comp,
 )
@@ -109,6 +111,7 @@ ALL_COMPONENTS = [
     feature_calculate,
     identity,
     model_export_comp,
+    ss_compare_comp,
 ]
 
 COMP_LIST_NAME = "secretflow"
