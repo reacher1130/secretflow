@@ -41,7 +41,6 @@ from secretflow.component.preprocessing.binning.vert_woe_binning import (
     vert_woe_binning_comp,
 )
 from secretflow.component.preprocessing.data_prep.psi import psi_comp
-from secretflow.component.preprocessing.filter.sample import sample_comp
 from secretflow.component.preprocessing.data_prep.train_test_split import (
     train_test_split_comp,
 )
@@ -50,6 +49,7 @@ from secretflow.component.preprocessing.filter.condition_filter import (
     condition_filter_comp,
 )
 from secretflow.component.preprocessing.filter.feature_filter import feature_filter_comp
+from secretflow.component.preprocessing.filter.sample import sample_comp
 from secretflow.component.preprocessing.unified_single_party_ops.binary_op import (
     binary_op_comp,
 )
@@ -72,6 +72,7 @@ from secretflow.component.stats.ss_pearsonr import ss_pearsonr_comp
 from secretflow.component.stats.ss_vif import ss_vif_comp
 from secretflow.component.stats.stats_psi import stats_psi_comp
 from secretflow.component.stats.table_statistics import table_statistics_comp
+from secretflow.component.userdiy.compare import ss_compare_comp
 from secretflow.spec.extend.cluster_pb2 import SFClusterConfig
 from secretflow.spec.v1.component_pb2 import CompListDef, ComponentDef
 from secretflow.spec.v1.data_pb2 import StorageConfig
@@ -79,6 +80,7 @@ from secretflow.spec.v1.evaluation_pb2 import NodeEvalParam, NodeEvalResult
 from secretflow.version import build_message
 
 ALL_COMPONENTS = [
+    ss_compare_comp,
     union_comp,
     train_test_split_comp,
     psi_comp,

@@ -4254,6 +4254,67 @@
           ]
         }
       ]
+    },
+    {
+      "domain": "userdiy",
+      "name": "ss_compare",
+      "desc": "compare two tables data",
+      "version": "0.0.1",
+      "attrs": [
+        {
+          "name": "tolerance",
+          "desc": "two numbers to be equal if they are within tolerance",
+          "type": "AT_INT",
+          "atomic": {
+            "isOptional": true,
+            "defaultValue": {
+              "i64": "10"
+            },
+            "lowerBoundEnabled": true,
+            "lowerBound": {},
+            "lowerBoundInclusive": true
+          }
+        }
+      ],
+      "inputs": [
+        {
+          "name": "input_table",
+          "desc": "input vertical table",
+          "types": [
+            "sf.table.vertical_table"
+          ],
+          "attrs": [
+            {
+              "name": "alice_value",
+              "desc": "first column",
+              "colMinCntInclusive": "1",
+              "colMaxCntInclusive": "1"
+            },
+            {
+              "name": "bob_value",
+              "desc": "second column",
+              "colMinCntInclusive": "1",
+              "colMaxCntInclusive": "1"
+            }
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "alice_output",
+          "desc": "output table for alice",
+          "types": [
+            "sf.table.individual"
+          ]
+        },
+        {
+          "name": "bob_output",
+          "desc": "output table for bob",
+          "types": [
+            "sf.table.individual"
+          ]
+        }
+      ]
     }
   ]
 }
