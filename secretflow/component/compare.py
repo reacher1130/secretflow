@@ -3,7 +3,7 @@ from secretflow.component.data_utils import DistDataType
 
 ss_compare_comp = Component(
     "ss_compare",
-    domain="userdiy",
+    domain="user",
     version="0.0.1",
     desc="compare two tables data",
 )

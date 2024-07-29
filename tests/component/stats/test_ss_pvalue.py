@@ -66,6 +66,9 @@ def test_ss_pvalue(comp_prod_sf_cluster_config, reg_type):
             "reg_type",
             "penalty",
             "l2_norm",
+            "decay_epoch",
+            "decay_rate",
+            "strategy",
             "input/train_dataset/label",
             "input/train_dataset/feature_selects",
         ],
@@ -77,6 +80,9 @@ def test_ss_pvalue(comp_prod_sf_cluster_config, reg_type):
             Attribute(s=reg_type),
             Attribute(s="l2"),
             Attribute(f=0.05),
+            Attribute(i64=2),
+            Attribute(f=0.5),
+            Attribute(s="policy_sgd"),
             Attribute(ss=["y"]),
             Attribute(ss=[f"a{i}" for i in range(15)] + [f"b{i}" for i in range(15)]),
         ],
@@ -173,7 +179,7 @@ def test_ss_pvalue_glm(comp_prod_sf_cluster_config):
     train_param = NodeEvalParam(
         domain="ml.train",
         name="ss_glm_train",
-        version="0.0.3",
+        version="0.0.2",
         attr_paths=[
             "epochs",
             "learning_rate",

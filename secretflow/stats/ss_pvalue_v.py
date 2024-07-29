@@ -242,9 +242,7 @@ class PValue:
         y = y[0]
         x_shape = x.shape
 
-        xtx_inv = y_device(lambda x: newton_matrix_inverse(x))(xtx.to(y_device)).to(
-            self.spu
-        )
+        xtx_inv = y_device(lambda x: np.linalg.inv(x))(xtx.to(y_device)).to(self.spu)
 
         spu_t = self.spu(_t_square_value)(
             xtx_inv, x_shape[0], x_shape[1], y, yhat, weights
@@ -300,9 +298,7 @@ class PValue:
         )
 
         y_device = list(y.partitions.keys())[0]
-        H_inv = y_device(lambda x: newton_matrix_inverse(x))(H.to(y_device)).to(
-            self.spu
-        )
+        H_inv = y_device(lambda x: np.linalg.inv(x))(H.to(y_device)).to(self.spu)
 
         spu_z = self.spu(_z_square_value)(H_inv, weights)
         z_square = self._rectify_negative(sf.reveal(spu_z))

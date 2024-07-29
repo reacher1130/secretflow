@@ -184,31 +184,25 @@ class Sampler(Component):
     def should_row_subsampling(self) -> bool:
         return self.params.rowsample_by_tree < 1 or self.params.enable_goss
 
-    def apply_vector_sampling(
-        self, x: PYUObject, indices: Union[PYUObject, np.ndarray], reshaped=True
+    def _apply_vector_sampling(
+        self,
+        x: PYUObject,
+        indices: Union[PYUObject, np.ndarray],
     ):
         """Sample x for a single partition. Assuming we have a column vector.
         Assume the indices was generated from row sampling by sampler"""
-        if reshaped:
-            if self.params.rowsample_by_tree < 1:
-                return x.device(lambda x, indices: x.reshape(-1, 1)[indices, :])(
-                    x, indices
-                )
-            else:
-                return x.device(lambda x: x.reshape(-1, 1))(x)
+        if self.params.rowsample_by_tree < 1:
+            return x.device(lambda x, indices: x.reshape(-1, 1)[indices, :])(x, indices)
         else:
-            if self.params.rowsample_by_tree < 1:
-                return x.device(lambda x, indices: x[indices])(x, indices)
-            else:
-                return x
+            return x.device(lambda x: x.reshape(-1, 1))(x)
 
-    def apply_vector_sampling_and_weight(
+    def apply_vector_sampling_weighted(
         self,
         x: PYUObject,
         indices: Union[PYUObject, np.ndarray],
         weight: Union[PYUObject, None] = None,
     ):
-        if weight is not None:
+        if self.params.enable_goss:
             return x.device(
                 lambda x, indices, weight: (
                     np.multiply(x.reshape(-1)[indices], weight.reshape(-1))
@@ -219,7 +213,7 @@ class Sampler(Component):
                 weight,
             )
         else:
-            return self.apply_vector_sampling(x, indices)
+            return self._apply_vector_sampling(x, indices)
 
     def apply_v_fed_sampling(
         self,

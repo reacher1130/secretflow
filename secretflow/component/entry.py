@@ -12,6 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# TODO: add more components 用户自定义组件
+from secretflow.component.compare import ss_compare_comp
 from secretflow.component.io.identity import identity
 from secretflow.component.io.io import io_read_data, io_write_data
 from secretflow.component.ml.boost.sgb.sgb import sgb_predict_comp, sgb_train_comp
@@ -30,9 +32,6 @@ from secretflow.component.ml.linear.ss_sgd import ss_sgd_predict_comp, ss_sgd_tr
 from secretflow.component.ml.nn.sl.sl_predict import slnn_predict_comp
 from secretflow.component.ml.nn.sl.sl_train import slnn_train_comp
 from secretflow.component.model_export import model_export_comp
-from secretflow.component.postprocessing.score_card_transformer import (
-    score_card_transformer_comp,
-)
 from secretflow.component.preprocessing.binning.vert_binning import (
     vert_bin_substitution_comp,
     vert_binning_comp,
@@ -49,14 +48,12 @@ from secretflow.component.preprocessing.filter.condition_filter import (
     condition_filter_comp,
 )
 from secretflow.component.preprocessing.filter.feature_filter import feature_filter_comp
-from secretflow.component.preprocessing.filter.sample import sample_comp
 from secretflow.component.preprocessing.unified_single_party_ops.binary_op import (
     binary_op_comp,
 )
 from secretflow.component.preprocessing.unified_single_party_ops.case_when import (
     case_when,
 )
-from secretflow.component.preprocessing.unified_single_party_ops.cast import cast_comp
 from secretflow.component.preprocessing.unified_single_party_ops.feature_calculate import (
     feature_calculate,
 )
@@ -70,9 +67,7 @@ from secretflow.component.preprocessing.unified_single_party_ops.substitution im
 from secretflow.component.stats.groupby_statistics import groupby_statistics_comp
 from secretflow.component.stats.ss_pearsonr import ss_pearsonr_comp
 from secretflow.component.stats.ss_vif import ss_vif_comp
-from secretflow.component.stats.stats_psi import stats_psi_comp
 from secretflow.component.stats.table_statistics import table_statistics_comp
-from secretflow.component.userdiy.compare import ss_compare_comp
 from secretflow.spec.extend.cluster_pb2 import SFClusterConfig
 from secretflow.spec.v1.component_pb2 import CompListDef, ComponentDef
 from secretflow.spec.v1.data_pb2 import StorageConfig
@@ -80,11 +75,9 @@ from secretflow.spec.v1.evaluation_pb2 import NodeEvalParam, NodeEvalResult
 from secretflow.version import build_message
 
 ALL_COMPONENTS = [
-    ss_compare_comp,
     union_comp,
     train_test_split_comp,
     psi_comp,
-    sample_comp,
     ss_sgd_train_comp,
     ss_sgd_predict_comp,
     feature_filter_comp,
@@ -98,7 +91,6 @@ ALL_COMPONENTS = [
     ss_pvalue_comp,
     table_statistics_comp,
     groupby_statistics_comp,
-    stats_psi_comp,
     biclassification_eval_comp,
     regression_eval_comp,
     prediction_bias_comp,
@@ -119,8 +111,7 @@ ALL_COMPONENTS = [
     feature_calculate,
     identity,
     model_export_comp,
-    cast_comp,
-    score_card_transformer_comp,
+    ss_compare_comp,
 ]
 
 COMP_LIST_NAME = "secretflow"

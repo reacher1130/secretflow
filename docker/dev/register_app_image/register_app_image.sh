@@ -30,7 +30,7 @@ OPTIONS:
     -h    [optional] show this help text
     -i    [mandatory] app docker image info
     -m    [optional] kuscia deploy mode. support [center, p2p], default value: p2p
-    -d    [optional] domain ids that makes up the kuscia container name. default value: alice,bob,tom
+    -d    [optional] domain ids that makes up the kuscia container name. default value: alice,bob
     -u    [optional] user who deploy the kuscia container. default value: ${USER}
     -n    [optional] kuscia appImage name for app docker image. if not specified, the script will automatically generate a name
     -f    [optional] kuscia appImage template file full path. the recommended template file naming rule is {appImage name}.yaml under the same directory as tool script. otherwise the file full path must be specified
@@ -218,9 +218,3 @@ function register_app_image() {
 }
 
 register_app_image
-
-
-
-
-
-SECRETPAD_CONTAINER_NAME="${DEPLOY_USER}-kuscia-autonomy-secretpad-${DOMAIN_IDS}"

@@ -545,23 +545,14 @@ def dump_table(
     uri: str,
     meta: Union[IndividualTable, VerticalTable, VerticalTableWrapper],
     system_info: SystemInfo,
-    partitions: List[str] = None,
 ) -> DistData:
-    assert isinstance(vdata, VDataFrame), f"{type(vdata)} is not a VDataFrame"
+    assert isinstance(vdata, VDataFrame), f"{dd_type(vdata)} is not a VDataFrame"
     assert len(vdata.partitions) > 0
     assert math.prod(vdata.shape), "empty dataset is not allowed"
 
-    # partitions are just used to specify the order of schemas in the VerticalTable
-    vdata_partitions = [p.party for p in vdata.partitions]
-    if partitions is None:
-        partitions = vdata_partitions
-    else:
-        assert len(partitions) == len(vdata_partitions), "partitions length mismatch"
-        assert set(partitions) == set(vdata_partitions), "partitions mismatch"
-
     with ctx.tracer.trace_io():
         output_path = {
-            PYU(p): lambda: ctx.comp_storage.get_writer(uri) for p in partitions
+            p: lambda: ctx.comp_storage.get_writer(uri) for p in vdata.partitions
         }
         wait(vdata.to_csv(output_path, index=False))
 
@@ -569,26 +560,25 @@ def dump_table(
         dd_type = DistDataType.INDIVIDUAL_TABLE
         meta.line_count = vdata.shape[0]
     elif isinstance(meta, VerticalTable):
-        # Ensure that the sequence of schemas is the same as that of partitions
+        # The user needs to ensure that the schemas of meta is correct
         dd_type = DistDataType.VERTICAL_TABLE
         meta.line_count = vdata.shape[0]
-        assert len(meta.schemas) == len(
-            partitions
-        ), f"meta schemas length mismatch, {len(meta.schemas)}, {len(partitions)}"
     else:
+        order = [p.party for p in vdata.partitions]
         dd_type = DistDataType.VERTICAL_TABLE
         meta.line_count = vdata.shape[0]
-        meta = meta.to_vertical_table(partitions)
+        meta = meta.to_vertical_table(order)
         assert len(meta.schemas) == len(
-            partitions
-        ), f"meta schemas length mismatch, {len(meta.schemas)}, {len(partitions)}"
+            vdata.partitions
+        ), f"meta schemas length mismatch, {len(meta.schemas)}, {len(vdata.partitions)}"
 
     ret = DistData(
         name=uri,
         type=str(dd_type),
         system_info=system_info,
         data_refs=[
-            DistData.DataRef(uri=uri, party=p, format="csv") for p in partitions
+            DistData.DataRef(uri=uri, party=p.party, format="csv")
+            for p in vdata.partitions
         ],
     )
 

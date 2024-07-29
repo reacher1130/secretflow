@@ -194,7 +194,7 @@ class SPUObject(DeviceObject):
             for i, actor in enumerate(self.device.actors.values()):
                 try:
                     actor.del_share.remote(self.shares_name[i])
-                except Exception:
+                except TypeError:
                     # Python doesn't make any guarantees about when __del__ is called,
                     # actor may not exist, been GCed before this function called.
                     # This may happened when Host(Driver) progress exit.
@@ -2068,7 +2068,7 @@ class SPU(Device):
             advanced_join_type (str, optional): Advanced Join allow duplicate keys. Defaults to "ADVANCED_JOIN_TYPE_UNSPECIFIED". Allowed values: 'ADVANCED_JOIN_TYPE_UNSPECIFIED', 'ADVANCED_JOIN_TYPE_INNER_JOIN', 'ADVANCED_JOIN_TYPE_LEFT_JOIN', 'ADVANCED_JOIN_TYPE_RIGHT_JOIN', 'ADVANCED_JOIN_TYPE_FULL_JOIN', 'ADVANCED_JOIN_TYPE_DIFFERENCE'
             left_side (str, optional): Required if advanced_join_type is selected. Defaults to "ROLE_RECEIVER". Allowed values: 'ROLE_RECEIVER', 'ROLE_SENDER'
             skip_duplicates_check (bool, optional): If true, the check of duplicated items will be skiped. Defaults to False.
-            disable_alignment (bool, optional): If true, output is not promised to be aligned. Defaults to False.
+            disable_alignment (bool, optional): It true, output is not promised to be aligned. Defaults to False.
             check_hash_digest (bool, optional): Check if hash digest of keys from parties are equal to determine whether to early-stop. Defaults to False.
 
         Returns:

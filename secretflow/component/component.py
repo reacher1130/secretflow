@@ -26,9 +26,8 @@ from typing import Dict, List, Type, Union
 import cleantext
 import spu
 from google.protobuf.message import Message as PbMessage
-
 from secretflow.component.checkpoint import CompCheckpoint
-from secretflow.component.data_utils import check_dist_data, check_io_def, DistDataType
+from secretflow.component.data_utils import DistDataType, check_dist_data, check_io_def
 from secretflow.component.eval_param_reader import EvalParamReader
 from secretflow.component.storage import ComponentStorage
 from secretflow.device.driver import init, shutdown

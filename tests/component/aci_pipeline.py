@@ -25,6 +25,7 @@ if __name__ == "__main__":
 
     attrs = {
         "protocol": "PROTOCOL_ECDH",
+        "receiver": "alice",
         "sort_result": True,
         "ecdh_curve": "CURVE_FOURQ",
         "input/receiver_input/key": ["id0"],

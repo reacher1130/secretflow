@@ -19,7 +19,6 @@ set -ex
 cp -r src src_copied
 cd src_copied
 
-
 source ~/.bashrc
 conda create -n build python=3.10 -y
 conda activate build
