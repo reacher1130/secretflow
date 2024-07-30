@@ -40,7 +40,7 @@ class GradLiaAttackCase(AttackBase):
         return AttackType.LABLE_INFERENSE
 
     def tune_metrics(self) -> Dict[str, str]:
-        return {'val_acc_0': 'max'}
+        return {'attack_auc': 'max', 'attack_acc': 'max'}
 
     def check_app_valid(self, app: ApplicationBase) -> bool:
         return app.model_type() != ModelType.DEEPFM

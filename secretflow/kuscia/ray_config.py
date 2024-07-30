@@ -15,6 +15,10 @@
 import multiprocessing
 import os
 from dataclasses import dataclass
+<<<<<<< HEAD
+=======
+import random
+>>>>>>> main
 from typing import Dict, List, Tuple
 
 from secretflow.kuscia.task_config import KusciaTaskConfig
@@ -27,6 +31,8 @@ class RayConfig:
     ray_object_manager_port: int = None
     ray_client_server_port: int = None
     ray_worker_ports: List[int] = None
+    ray_min_worker_port: int = None
+    ray_max_worker_port: int = None
     ray_gcs_port: List[int] = None
 
     def generate_ray_cmd(self) -> Tuple[List, Dict]:
@@ -57,6 +63,14 @@ class RayConfig:
         if self.ray_worker_ports:
             ray_cmd.append(
                 f'--worker-port-list={",".join(map(str, self.ray_worker_ports))}'
+<<<<<<< HEAD
+=======
+            )
+        elif self.ray_min_worker_port & self.ray_max_worker_port:
+            ray_cmd += (
+                f" --min-worker-port={self.ray_min_worker_port}"
+                f" --max-worker-port={self.ray_max_worker_port}"
+>>>>>>> main
             )
 
         return ray_cmd, envs
@@ -67,6 +81,8 @@ class RayConfig:
         cluster_define = config.task_cluster_def
 
         ray_worker_ports = []
+        ray_min_worker_port = 0
+        ray_max_worker_port = 0
         ray_node_manager_port = 0
         ray_object_manager_port = 0
         ray_client_server_port = 0
@@ -74,7 +90,6 @@ class RayConfig:
         ray_gcs_port = 0
 
         party_name = config.party_name
-
         for port in allocated_port.ports:
             if port.name.startswith("ray-worker"):
                 ray_worker_ports.append(port.port)
@@ -84,6 +99,12 @@ class RayConfig:
                 ray_object_manager_port = port.port
             elif port.name == "client-server":
                 ray_client_server_port = port.port
+
+        # ray work nums = cpu nums + 1
+        # ray max cpu nums is 32
+        # port range allocated by ray workers [10000, 20000]
+        ray_min_worker_port = random.randint(10000, 19900)
+        ray_max_worker_port = ray_min_worker_port + 100
 
         for party in cluster_define.parties:
             if party.name == party_name:
@@ -102,5 +123,7 @@ class RayConfig:
             ray_object_manager_port,
             ray_client_server_port,
             ray_worker_ports,
+            ray_min_worker_port,
+            ray_max_worker_port,
             ray_gcs_port,
         )

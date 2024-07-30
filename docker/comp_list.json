@@ -96,6 +96,48 @@
     },
     {
       "domain": "data_filter",
+      "name": "expr_condition_filter",
+      "desc": "Only row-level filtering is supported, column processing is not available;\nthe custom expression must comply with SQLite syntax standards",
+      "version": "0.0.1",
+      "attrs": [
+        {
+          "name": "expr",
+          "desc": "The custom expression must comply with SQLite syntax standards",
+          "type": "AT_STRING",
+          "atomic": {}
+        }
+      ],
+      "inputs": [
+        {
+          "name": "in_ds",
+          "desc": "Input vertical or individual table",
+          "types": [
+            "sf.table.individual",
+            "sf.table.vertical_table"
+          ]
+        }
+      ],
+      "outputs": [
+        {
+          "name": "out_ds",
+          "desc": "Output table that satisfies the condition",
+          "types": [
+            "sf.table.individual",
+            "sf.table.vertical_table"
+          ]
+        },
+        {
+          "name": "out_ds_else",
+          "desc": "Output table that does not satisfies the condition",
+          "types": [
+            "sf.table.individual",
+            "sf.table.vertical_table"
+          ]
+        }
+      ]
+    },
+    {
+      "domain": "data_filter",
       "name": "feature_filter",
       "desc": "Drop features from the dataset.",
       "version": "0.0.1",

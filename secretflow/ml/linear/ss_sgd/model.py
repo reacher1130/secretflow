@@ -167,6 +167,7 @@ def _batch_update_w(
     batch_size: int,
     strategy: Strategy,
     dk_arr: np.ndarray,
+    enable_spu_cache: bool = False,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     update weights on dataset in one iteration.
@@ -183,7 +184,7 @@ def _batch_update_w(
         batch_size: how many samples use in one calculation.
         strategy: learning strategy for updating weights.
         dk_arr: only useful for policy-sgd, store the recently 1/norm(g_k) in this infeed.
-
+        enable_spu_cache: enable spu beaver cache or not.
     Return:
         W after update and array of norm of gradient.
     """
@@ -215,7 +216,12 @@ def _batch_update_w(
         pred = jnp.matmul(x_slice, w)
         if reg_type == RegType.Logistic:
             if sig_type != SigType.T1:
+<<<<<<< HEAD
                 pred = spu.experimental.make_cached_var(pred)
+=======
+                if enable_spu_cache:
+                    pred = spu.experimental.make_cached_var(pred)
+>>>>>>> main
             pred = sigmoid(pred, sig_type)
             if sig_type != SigType.T1:
                 pred = spu.experimental.drop_cached_var(pred)
@@ -477,6 +483,7 @@ class SSRegression:
                     'total_batch',
                     'batch_size',
                     'strategy',
+                    'enable_spu_cache',
                 ),
                 num_returns_policy=SPUCompilerNumReturnsPolicy.FROM_USER,
                 user_specified_num_returns=2,
@@ -493,6 +500,7 @@ class SSRegression:
                 batch_size=self.lr_batch_size,
                 strategy=self.strategy,
                 dk_arr=self.dk_norm_dict.get(infeed_step, None),
+                enable_spu_cache=self.enable_spu_cache,
             )
             self.dk_norm_dict[infeed_step] = dk_arr
 

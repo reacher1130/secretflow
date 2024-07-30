@@ -16,14 +16,28 @@
     "Input a str with values separated by ','. List of values to compare with. If comparator is not 'IN', we only support one element in this list.": "输入一个str，其值以“，”分隔。 表示比较的值的列表。如果比较条件不是“IN”，则此列表中应该仅含一个元素。",
     "float_epsilon": "浮点数误差值",
     "Epsilon value for floating point comparison. WARNING: due to floating point representation in computers, set this number slightly larger if you want filter out the values exactly at desired boundary. for example, abs(1.001 - 1.002) is slightly larger than 0.001, and therefore may not be filter out using == and epsilson = 0.001": "用于浮点比较的Epsilon值。警告：由于计算机中的浮点表示，如果您想在所需的边界处过滤掉值，请将此数字设置得稍大一些。例如，abs（1.001-1.002）略大于0.001，因此可能无法使用==和epsilson=0.001进行过滤",
-    "in_ds": "输入数据集",
-    "Input vertical table.": "输入竖排表格。",
-    "features": "特征",
-    "Feature(s) to operate on.": "要操作的特征。",
-    "out_ds": "输出数据集",
-    "Output vertical table that satisfies the condition.": "输出满足条件的垂直表格。",
-    "out_ds_else": "输出数据集",
-    "Output vertical table that does not satisfies the condition.": "输出不满足条件的垂直表格。"
+    "in_ds": "输入联合表",
+    "Input vertical table.": "输入联合表",
+    "features": "特征列",
+    "Feature(s) to operate on.": "要操作的特征列",
+    "out_ds": "输出表",
+    "Output vertical table that satisfies the condition.": "输出满足条件的表",
+    "out_ds_else": "输出表",
+    "Output vertical table that does not satisfies the condition.": "输出不满足条件的表"
+  },
+  "data_filter/expr_condition_filter:0.0.1": {
+    "data_filter": "数据过滤",
+    "expr_condition_filter": "自定义行过滤",
+    "Only row-level filtering is supported, column processing is not available;\nthe custom expression must comply with SQLite syntax standards": "仅支持行级过滤，不支持列处理;\n自定义表达式必须符合 SQLite 语法标准",
+    "0.0.1": "0.0.1",
+    "expr": "表达式",
+    "The custom expression must comply with SQLite syntax standards": "自定义表达式必须符合 SQLite 语法标准",
+    "in_ds": "输入表",
+    "Input vertical or individual table": "输入表可以是联合表或样本表",
+    "out_ds": "输出表",
+    "Output table that satisfies the condition": "输出满足条件的表",
+    "out_ds_else": "输出表",
+    "Output table that does not satisfies the condition": "输出不满足条件的表"
   },
   "data_filter/feature_filter:0.0.1": {
     "data_filter": "数据过滤",
@@ -60,8 +74,13 @@
     "observe_feature": "观测特征",
     "stratify sample observe feature.": "分层采样观测特征。",
     "replacements": "放回",
+<<<<<<< HEAD
     "quantiles": "分位数",
     "stratify sample quantiles": "分层采样分位数",
+=======
+    "quantiles": "分位点",
+    "stratify sample quantiles": "分层采样分位点",
+>>>>>>> main
     "weights": "权重",
     "stratify sample weights": "分层采样权重",
     "input_data": "输入数据",

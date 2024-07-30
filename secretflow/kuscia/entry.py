@@ -548,4 +548,9 @@ def main(task_config_path, datamesh_addr):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        logging.exception(f"unexpected exception")
+        logging.shutdown()
+        os._exit(1)

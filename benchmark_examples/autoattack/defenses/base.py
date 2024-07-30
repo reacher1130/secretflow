@@ -82,12 +82,25 @@ class DefenseBase(AutoBase, ABC):
         """Update the resource consumptions depends on each defense."""
         pass
 
+<<<<<<< HEAD
+=======
+    def tune_metrics(self, app_metrics: Dict[str, str]) -> Dict[str, str]:
+        """
+        Return the defense tune metrics, and can modify the app metircs.
+        Args:
+            app_metrics: application metrics to modify.
+
+        Returns:
+            the defense tuen metrics.
+        """
+
+>>>>>>> main
 
 class DefaultDefenseCase(DefenseBase):
     def __init__(self, alice=None, bob=None):
         super().__init__(alice, bob)
 
-    def tune_metrics(self) -> Dict[str, str]:
+    def tune_metrics(self, app_metrics: Dict[str, str]) -> Dict[str, str]:
         return {}
 
     def __str__(self):

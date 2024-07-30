@@ -42,7 +42,7 @@ class BatchLevelLiaAttackCase(AttackBase):
             dummy_fuse_model=app.create_fuse_model(),
             exec_device='cuda' if global_config.is_use_gpu() else 'cpu',
             label=app.get_plain_train_label(),
-            lr=self.config.get('lr', 0.05),
+            lr=self.config.get('lr', 0.001),
             label_size=[app.num_classes],
             epochs=10,
         )

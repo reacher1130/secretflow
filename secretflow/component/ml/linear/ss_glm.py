@@ -586,6 +586,7 @@ def ss_glm_train_eval_fn(
         "y_scale": glm.y_scale,
         "offset_col": offset_col,
         "label_col": train_dataset_label,
+        "sample_weight_col": train_dataset_weight,
         "feature_names": feature_names,
         "party_features_length": party_features_length,
         "model_hash": generate_random_string(next(iter(x.partition_columns.keys()))),

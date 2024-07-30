@@ -56,7 +56,7 @@ class Mid(DefenseBase):
     def check_app_valid(self, app: ApplicationBase) -> bool:
         return app.base_input_mode() == InputMode.SINGLE
 
-    def tune_metrics(self) -> Dict[str, str]:
+    def tune_metrics(self, app_metrics: Dict[str, str]) -> Dict[str, str]:
         return {}
 
     def update_resources_consumptions(

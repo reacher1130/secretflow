@@ -12,6 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<< HEAD
+=======
+import logging
+>>>>>>> main
 from typing import Dict
 
 from benchmark_examples.autoattack import global_config
@@ -37,7 +41,11 @@ class CAE(DefenseBase):
             exec_device='cuda' if global_config.is_use_gpu() else 'cpu',
             autoencoder_epochs=20,
             train_sample_size=30000,
+<<<<<<< HEAD
             test_sample_siz=10000,
+=======
+            test_sample_size=10000,
+>>>>>>> main
             T=self.config.get('T', 0.025),
             hyper_lambda=self.config.get('hyper_lambda', 2.0),
             learning_rate=self.config.get('learning_rate', 5e-4),
@@ -51,7 +59,20 @@ class CAE(DefenseBase):
     def check_app_valid(self, app: ApplicationBase) -> bool:
         return True
 
+<<<<<<< HEAD
     def tune_metrics(self) -> Dict[str, str]:
+=======
+    def tune_metrics(self, app_metrics: Dict[str, str]) -> Dict[str, str]:
+        # The cae defense will replace the binary classification in the application
+        # with multi-classification indicators, so the indicators reported to tune should also be replaced
+        for k in list(app_metrics.keys()):
+            if 'app_' in k:
+                app_metrics[k.replace('Binary', 'Multiclass')] = app_metrics[k]
+                app_metrics.pop(k)
+        logging.warning(
+            "cae converts binary classification indicators into multi-classification indicators"
+        )
+>>>>>>> main
         return {}
 
     def update_resources_consumptions(

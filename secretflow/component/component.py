@@ -17,6 +17,7 @@ import json
 import logging
 import math
 import os
+import sys
 import threading
 import time
 from dataclasses import dataclass
@@ -28,7 +29,7 @@ import spu
 from google.protobuf.message import Message as PbMessage
 
 from secretflow.component.checkpoint import CompCheckpoint
-from secretflow.component.data_utils import check_dist_data, check_io_def, DistDataType
+from secretflow.component.data_utils import DistDataType, check_dist_data, check_io_def
 from secretflow.component.eval_param_reader import EvalParamReader
 from secretflow.component.storage import ComponentStorage
 from secretflow.device.driver import init, shutdown
@@ -1190,15 +1191,17 @@ class Component:
             ret = self.__eval_callback(ctx=ctx, **kwargs)
         except Exception as e:
             on_error = True
-            logging.error(f"eval on {param} failed, error <{e}>")
+            logging.exception(f"eval on {param} failed")
             # TODO: use error_code in report
-            raise e from None
         finally:
             if cluster_config is not None:
                 shutdown(
                     barrier_on_shutdown=cluster_config.public_config.barrier_on_shutdown,
                     on_error=on_error,
                 )
+            if on_error:
+                logging.shutdown()
+                os._exit(1)
 
         logging.info(f"{param}, getting eval return complete.")
         # check output

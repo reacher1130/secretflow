@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 import numpy as np
 import torch
@@ -111,12 +111,6 @@ class CreditcardDnn(ApplicationBase):
             dnn_units_size=[1],
             output_func=nn.Sigmoid,
         )
-
-    def resources_consumes(self) -> List[Dict]:
-        return [
-            {'alice': 0.5, 'CPU': 0.5, 'GPU': 0.001, 'gpu_mem': 400 * 1024 * 1024},
-            {'bob': 0.5, 'CPU': 0.5, 'GPU': 0.001, 'gpu_mem': 400 * 1024 * 1024},
-        ]
 
     def tune_metrics(self) -> Dict[str, str]:
         return {

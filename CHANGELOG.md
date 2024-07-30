@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 `Fixed` for any bug fixes.
 `Security` in case of vulnerabilities.
 
+<<<<<<< HEAD
 ## [v1.8.0] - 2024-06-28
 
 ### Added
@@ -27,6 +28,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fix
 
 - [sgb] can now load complete model from federated model to parties other than label holder
+=======
+
+## [v1.8.0b0] - 2024-07-17
+
+### Added
+- [component] support tweedie learning objective in SGB
+- [component] update graph builder in model export
+
+>>>>>>> main
 
 ## [v1.7.0.dev20240605] - 2024-06-05
 

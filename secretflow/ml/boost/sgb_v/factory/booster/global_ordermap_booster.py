@@ -223,6 +223,13 @@ class GlobalOrdermapBooster(Composite, CallBackCompatibleModel):
             if self.params.first_tree_with_label_holder_feature and tree_index == 0:
                 config['label_holder_feature_only'] = False
                 self.tree_trainer.set_params(config)
+
+            # check if the tree is meaningful
+            # if more than root node exists, then insert
+            # else stop the training process
+            if tree.is_empty():
+                logging.info(f"tree {tree_index} is empty, stop training.")
+                break
             self.components.model_builder.insert_tree(tree)
             cur_tree_num = self.components.model_builder.get_tree_num()
 

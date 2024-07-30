@@ -274,6 +274,7 @@ def assert_categorical_parameter_valid_option(param_name, value):
 
 
 def assert_parameter_combination_valid(params_dict):
+<<<<<<< HEAD
     if params_dict.get('enable_monitor', False) or params_dict.get(
         'enable_early_stop', False
     ):
@@ -282,11 +283,27 @@ def assert_parameter_combination_valid(params_dict):
                 params_dict['eval_metric'] == 'roc_auc'
             ), f"when objective is logistic, eval_metric must be auc, got {params_dict['eval_metric']}"
         if params_dict['objective'] == 'tweedie' and 'eval_metric' in params_dict:
+=======
+    if (
+        params_dict.get('enable_monitor', False)
+        or params_dict.get('enable_early_stop', False)
+    ) and 'eval_metric' in params_dict:
+        objective = params_dict.get('objective', 'logistic')
+        if objective == 'logistic':
+            assert (
+                params_dict['eval_metric'] == 'roc_auc'
+            ), f"when objective is logistic, eval_metric must be auc, got {params_dict['eval_metric']}"
+        if objective == 'tweedie':
+>>>>>>> main
             assert params_dict['eval_metric'] in [
                 'tweedie_nll',
                 'tweedie_deviance',
             ], f"when objective is tweedie, eval_metric must be tweedie_nll or tweedie_deviance, got {params_dict['eval_metric']}"
+<<<<<<< HEAD
         if params_dict['objective'] == 'linear' and 'eval_metric' in params_dict:
+=======
+        if objective == 'linear':
+>>>>>>> main
             assert params_dict['eval_metric'] in [
                 'mse',
                 'rmse',

@@ -256,7 +256,11 @@ def _irls_calculate_partials(
         v = dist.variance(mu)
         g_gradient = link.link_derivative(mu)
         if enable_spu_cache:
+<<<<<<< HEAD
             spu.experimental.make_cached_var(g_gradient)
+=======
+            g_gradient = spu.experimental.make_cached_var(g_gradient)
+>>>>>>> main
         W_diag = 1 / dist.scale() / (v * g_gradient) / g_gradient
         Z = eta + (y - mu) * g_gradient
         if enable_spu_cache:
@@ -269,7 +273,11 @@ def _irls_calculate_partials(
         W_diag = W_diag * weight
     XTW = jnp.transpose(x * W_diag.reshape(-1, 1))
     if enable_spu_cache:
+<<<<<<< HEAD
         spu.experimental.make_cached_var(XTW)
+=======
+        XTW = spu.experimental.make_cached_var(XTW)
+>>>>>>> main
     J = jnp.matmul(XTW, x)
     XTWZ = jnp.matmul(XTW, Z)
     if enable_spu_cache:

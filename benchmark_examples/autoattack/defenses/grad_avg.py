@@ -41,7 +41,7 @@ class GradientAverageCase(DefenseBase):
     def check_attack_valid(self, attack: AttackBase) -> bool:
         return attack.attack_type() == AttackType.LABLE_INFERENSE
 
-    def tune_metrics(self) -> Dict[str, str]:
+    def tune_metrics(self, app_metrics: Dict[str, str]) -> Dict[str, str]:
         return {}
 
     def check_app_valid(self, app: ApplicationBase) -> bool:

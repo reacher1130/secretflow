@@ -48,6 +48,35 @@ Audit the usage of this component carefully.
 |out_ds|Output vertical table that satisfies the condition.|['sf.table.vertical_table']||
 |out_ds_else|Output vertical table that does not satisfies the condition.|['sf.table.vertical_table']||
 
+### expr_condition_filter
+
+
+Component version: 0.0.1
+
+Only row-level filtering is supported, column processing is not available;
+the custom expression must comply with SQLite syntax standards
+#### Attrs
+
+
+|Name|Description|Type|Required|Notes|
+| :--- | :--- | :--- | :--- | :--- |
+|expr|The custom expression must comply with SQLite syntax standards|String|Y||
+
+#### Inputs
+
+
+|Name|Description|Type(s)|Notes|
+| :--- | :--- | :--- | :--- |
+|in_ds|Input vertical or individual table|['sf.table.individual', 'sf.table.vertical_table']||
+
+#### Outputs
+
+
+|Name|Description|Type(s)|Notes|
+| :--- | :--- | :--- | :--- |
+|out_ds|Output table that satisfies the condition|['sf.table.individual', 'sf.table.vertical_table']||
+|out_ds_else|Output table that does not satisfies the condition|['sf.table.individual', 'sf.table.vertical_table']||
+
 ### feature_filter
 
 

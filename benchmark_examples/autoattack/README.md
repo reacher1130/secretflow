@@ -95,6 +95,7 @@
 | 81 | cifar10    | cnn      | grad_avg          | -         | -         | -         | -         | -         | -         | -         | -         | -         |
 | 82 | cifar10    | cnn      | mid               | -         | -         | -         | -         | -         | -         | -         | -         | -         |
 | 83 | cifar10    | cnn      | mixup             | -         | -         | -         | supported | supported | -         | -         | -         | supported |
+
 ## 如何添加新的实现
 代码在`benchmark_example/autoattack`目录下。
 
@@ -397,3 +398,15 @@ Benchmark运行结束后，在`autoattack_path`指定的路径（默认为`~/.se
     │   └── ...
     ├── .../ 其余场景的文件夹
 ```
+
+
+## 可能的问题
+
+### tune实验偶发报错，如有几个实验出错
+
+如在autoattack时获得偶发性实验失败，并包含报错：
+Check failed: ret == 0 (11 vs. 0) Thread creation via pthread_create() failed.
+
+有可能是因为内存不足，或线程数创建过多，可检查系统设置的用户最大线程数，并观察在进程运行时最大的线程数量。
+
+可以通过修改用户最大创建线程数量，或直接在启动ray时，通过--nums-cpu指定较少的CPU数量即可。

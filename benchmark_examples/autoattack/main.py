@@ -15,7 +15,11 @@
 import gc
 import logging
 import os
+<<<<<<< HEAD
 import time
+=======
+import types
+>>>>>>> main
 from typing import Callable, Dict, List
 
 import click
@@ -234,15 +238,15 @@ def _get_metrics(
     if attack:
         metrics.update(attack.tune_metrics())
     if defense:
-        metrics.update(defense.tune_metrics())
-    log_content = ""
+        metrics.update(defense.tune_metrics(metrics))
+    print(f"metricccc = {metrics}")
+    log_content = f"BEST RESULT for {app} {attack} {defense}: \n"
     best_results = []
     for metric_name, metric_mode in metrics.items():
         best_result = results.get_best_result(metric=metric_name, mode=metric_mode)
         log_content += (
-            f"RESULT: {app} {attack} {defense} {metric_name}'s "
-            f"best config(mode={metric_mode}) = {best_result.config}, "
-            f"best metrics = {best_result.metrics},\n"
+            f"  best config (name: {metric_name}, mode: {metric_mode}) = {best_result.config}\n"
+            f"  best metrics = {best_result.metrics},\n"
         )
         best_results.append(best_result)
     logging.warning(log_content)
@@ -301,9 +305,24 @@ def run_case(
     defense_impl: DefenseBase | None = (
         defense_cls(alice=alice, bob=bob) if defense_cls else None
     )
+<<<<<<< HEAD
     try:
         if not enable_tune:
             return objective({}, app=app_impl, attack=attack_impl, defense=defense_impl)
+=======
+    objective_name = f"{dataset}_{model}_{attack}_{defense}"
+    # give ray tune a readable objective name.
+    objective = types.FunctionType(objective.__code__, globals(), name=objective_name)
+    try:
+        if not enable_tune:
+            return objective(
+                {},
+                app=app_impl,
+                attack=attack_impl,
+                defense=defense_impl,
+                origin_global_configs=None,
+            )
+>>>>>>> main
         else:
             if global_config.is_debug_mode():
                 init_ray()
