@@ -27,6 +27,7 @@ class IcHandler(abc.ABC):
         self._dataset = dataset
 
     def run(self):
+        # handshake直接建立连接握手等
         if not self._handshake():
             logging.warning('interconnection handshake failed')
             return None

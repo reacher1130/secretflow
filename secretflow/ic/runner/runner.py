@@ -77,7 +77,7 @@ def run(config: dict, dataset: dict, logging_level: str = 'info'):
     sfd.set_distribution_mode(mode=DISTRIBUTION_MODE.INTERCONNECTION)
 
     _init_log(config['link']['self_party'], logging_level)
-
+    # 建立连接
     _init_link(config['link'])
 
     handler = _get_ic_handler(config, dataset)

@@ -13,9 +13,9 @@
 # limitations under the License.
 
 __version__ = "1.9.0b1"
-__commit_id__ = "$$COMMIT_ID$$"
+__commit_id__ = "aec95de655f98227e533e66186239e2a052bdc86"
 __docker_version__ = "$$DOCKER_VERSION$$"
-__build_time__ = "$$BUILD_TIME$$"
+__build_time__ = "Sep 03 2024, 17:44:17"
 
 
 def build_message():
