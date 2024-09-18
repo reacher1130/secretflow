@@ -22,7 +22,8 @@ import jax.tree_util
 import numpy as np
 import ray
 import spu
-from heu import numpy as hnp, phe
+from heu import numpy as hnp
+from heu import phe
 
 import secretflow.distributed as sfd
 from secretflow.utils.errors import PartyNotFoundError
