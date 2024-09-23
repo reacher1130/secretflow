@@ -9,15 +9,15 @@ def GetParamEnv(env_name: str) -> str:
 def get_io_filename_from_env(input: bool) -> str:
     host_url = os.getenv("system.stortage")
     if not host_url or not host_url.startswith("file://"):
-        host_url = os.getenv("system.stortage.host.url")
+        host_url = os.getenv("system.storage.host.url")
         if not host_url or not host_url.startswith("file://"):
             return None
 
     root_path = host_url[6:]
     json_str = (
-        os.getenv("runtime.compoment.parameter.input.train_data")
+        os.getenv("runtime.component.input.train_data")
         if input
-        else os.getenv("runtime.compoment.parameter.output.train_data")
+        else os.getenv("runtime.component.output.train_data")
     )
     if not json_str:
         return None
