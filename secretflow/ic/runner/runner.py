@@ -79,8 +79,9 @@ def run(config: dict, dataset: dict, logging_level: str = 'info'):
     _init_log(config['link']['self_party'], logging_level)
     # 建立连接
     _init_link(config['link'])
-
+    # 握手
     handler = _get_ic_handler(config, dataset)
+    # 执行算法，准备参数以及数据
     handler.run()
 
     _stop_link()
