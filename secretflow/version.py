@@ -13,7 +13,7 @@
 # limitations under the License.
 
 __version__ = "1.9.0b2"
-__commit_id__ = "$$COMMIT_ID$$"
+__commit_id__ = "7675658bc46e6dac50069dc1ccbff1e1971470bb"
 __docker_version__ = "$$DOCKER_VERSION$$"
 __build_time__ = "Sep 03 2024, 17:44:17"
 

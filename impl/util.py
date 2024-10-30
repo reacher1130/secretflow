@@ -54,7 +54,3 @@ def get_output_filename(defult_file) -> str:
     if output_optional is not None:
         output_filename = output_optional
     return output_filename
-
-
-def MakeLink(parties, self_rank):
-    

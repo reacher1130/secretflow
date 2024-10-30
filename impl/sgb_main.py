@@ -14,6 +14,7 @@ load_dotenv()
 
 
 if __name__ == '__main__':
+    load_dotenv()
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--input_file',
@@ -25,8 +26,10 @@ if __name__ == '__main__':
         '--output_file',
         type=str,
         default='/root/develop/ant-sf/secretflow/impl/data/breast_cancer_a.csv',
-        help='output file',z
+        help='output file',
     )
+    # parser.add_argument()
+
     args = parser.parse_args()
 
     input_filename = get_input_filename(defult_file=args.input_file)
