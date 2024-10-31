@@ -1,12 +1,15 @@
 import logging
 
 import spu.libspu.link as link
+from dotenv import load_dotenv
 from util import GetParamEnv
 
 import secretflow.distributed as sfd
 from secretflow.distributed.primitive import DISTRIBUTION_MODE
 from secretflow.ic.proxy import LinkProxy
 from secretflow.utils.logging import LOG_FORMAT, get_logging_level, set_logging_level
+
+load_dotenv("/root/develop/ant-sf/secretflow/impl/env/sgb-env-alice.env")
 
 
 class IcContext:
@@ -27,11 +30,9 @@ class Context:
         self.ic_ctx.lctx = self.MakeLink()
         self.start_transport = True
 
-
-
     def MakeLink(self, parties=None, self_rank=0):
 
-        lctx = None 
+        lctx = None
         try:
             lctx = link.CreateLinkContextForBlackBox()
 
@@ -39,4 +40,8 @@ class Context:
             lctx = link.CreateLinkContextForWhiteBox(parties, self_rank)
 
         return lctx
-    
+
+
+create_context = Context()
+
+ctx = create_context.MakeLink()
