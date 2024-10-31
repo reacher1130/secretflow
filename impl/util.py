@@ -3,7 +3,7 @@ import os
 
 
 def GetParamEnv(env_name: str) -> str:
-    return os.getenv("runtime.compoment.parameter." + env_name)
+    return os.getenv("runtime.component.parameter." + env_name)
 
 
 def get_io_filename_from_env(input: bool) -> str:

@@ -9,11 +9,14 @@ from secretflow.distributed.primitive import DISTRIBUTION_MODE
 from secretflow.ic.proxy import LinkProxy
 from secretflow.utils.logging import LOG_FORMAT, get_logging_level, set_logging_level
 
-load_dotenv("/root/develop/ant-sf/secretflow/impl/env/sgb-env-alice.env")
+load_dotenv("/root/develop/ant-sf/secretflow/impl/env/sgb-env-bob.env")
 
 
 class IcContext:
-    def __init__(self, parties: list, mode: str = DISTRIBUTION_MODE.SINGLE):
+
+    def __init__(
+        self, parties: list = None, mode: str = DISTRIBUTION_MODE.INTERCONNECTION
+    ):
         self.suggestedAlgo = 'ecdh_psi'
         self.suggestedProtocolfamilies = 'ecc'
         self.version = '1'
@@ -21,8 +24,11 @@ class IcContext:
 
 
 class Context:
-    def __init__(self, parties: list, mode: str = DISTRIBUTION_MODE.SINGLE):
-        self.ic_ctx = IcContext()
+
+    def __init__(
+        self, parties: list = None, mode: str = DISTRIBUTION_MODE.INTERCONNECTION
+    ):
+        self.ic_ctx = IcContext(list, mode)
 
     def CreateIcContext(self):
         self.ic_ctx.suggestedAlgo = GetParamEnv('algo')
@@ -32,16 +38,12 @@ class Context:
 
     def MakeLink(self, parties=None, self_rank=0):
 
-        lctx = None
-        try:
-            lctx = link.CreateLinkContextForBlackBox()
+        # lctx = None
+        # try:
+        #     lctx = link.CreateLinkContextForBlackBox(start_transport=start_transport)
 
-        except Exception as e:
-            lctx = link.CreateLinkContextForWhiteBox(parties, self_rank)
+        # except Exception as e:
+        #     lctx = link.CreateLinkContextForWhiteBox(parties, self_rank)
 
-        return lctx
-
-
-create_context = Context()
-
-ctx = create_context.MakeLink()
+        # return lctx
+        return link.CreateLinkContextForBlackBox(start_stransport=True)
