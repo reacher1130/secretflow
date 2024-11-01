@@ -23,57 +23,23 @@ from secretflow.ic.proxy.serializer import deserialize, serialize
 class LinkProxy:
     self_party = None
     all_parties = None
+    world_size = 2
+    self_rank = 0
+    recv_rank = 0
 
     _link = None
     _parties_rank = None
 
-    # @classmethod
-    # def init(
-    #     cls,
-    #     addresses: Dict,
-    #     self_party: str,
-    # ):
-    #     cls._parties_rank = {party: i for i, party in enumerate(addresses)}
-    #     cls.self_party = self_party
-    #     cls.all_parties = list(addresses.keys())
-
-    #     desc = link.Desc()
-    #     for party, addr in addresses.items():
-    #         desc.add_party(party, addr)
-
-    #     # link configurations for interconnection mode
-    #     desc.brpc_channel_protocol = "h2:grpc"
-    #     desc.throttle_window_size = 0
-    #     desc.disable_msg_seq_id = True
-    #     desc.http_max_payload_size = 2 * 1024 * 1024 * 1024 - 2  # yacl link limit
-
-    #     self_rank = cls.all_parties.index(self_party)
-
-    #     cls._link = link.create_brpc(desc, self_rank)
-
     @classmethod
-    def init(
-        cls,
-        addresses: Dict,
-        self_party: str,
-    ):
-        cls._parties_rank = {party: i for i, party in enumerate(addresses)}
-        cls.self_party = self_party
-        cls.all_parties = list(addresses.keys())
+    def init(cls):
 
-        desc = link.Desc()
-        for party, addr in addresses.items():
-            desc.add_party(party, addr)
-
-        # link configurations for interconnection mode
-        desc.brpc_channel_protocol = "h2:grpc"
-        desc.throttle_window_size = 0
-        desc.disable_msg_seq_id = True
-        desc.http_max_payload_size = 2 * 1024 * 1024 * 1024 - 2  # yacl link limit
-
-        self_rank = cls.all_parties.index(self_party)
-
-        cls._link = link.create_brpc(desc, self_rank)
+        cls._link = link.CreateLinkContextForBlackBox(start_stransport=True)
+        cls.self_rank = cls._link.rank
+        logging.info(f'self rank: {cls.self_rank}')
+        cls.self_party = cls._link.party_by_rank(cls.self_rank)
+        logging.info(f'self party: {cls.self_party}')
+        cls.world_size = cls._link.world_size
+        cls.all_parties = [cls._link.party_by_rank(i) for i in range(cls.world_size)]
 
     @classmethod
     def send_raw(cls, dest_party: str, msg_bytes: bytes):

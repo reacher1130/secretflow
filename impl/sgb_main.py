@@ -2,14 +2,18 @@ import argparse
 import logging
 import os
 
-from context import *
+from context import CreateIcContext
 from dotenv import load_dotenv
+from impl_handler import SgbIcHandler
+from link_proxy import LinkProxy
 from sklearn.datasets import load_breast_cancer
 from util import *
 
+import secretflow.distributed as sfd
+from secretflow.distributed.primitive import DISTRIBUTION_MODE
 from secretflow.ic.runner import run
 
-load_dotenv()
+# load_dotenv()
 # 1. 环境变量
 # 2. 根据环境变量设置参与方角色
 # 3. 读取环境变量，读入csv数据转为dict
@@ -32,6 +36,12 @@ if __name__ == '__main__':
         help='output file',
     )
     # parser.add_argument()
+    parser.add_argument(
+        '--env_file',
+        type=str,
+        default='/root/develop/ant-sf/secretflow/impl/env/sgb-env-alice.env',
+        help='env_file',
+    )
 
     args = parser.parse_args()
 
@@ -39,7 +49,7 @@ if __name__ == '__main__':
     output_filename = get_output_filename(defult_file=args.output_file)
     print(f'input_filename: {input_filename}')
     print(f'output_filename: {output_filename}')
-
+    env_file = args.env_file
     logging.basicConfig(level=logging.INFO)
     logging.info("Starting 互联互通 SGB...")
 
@@ -62,14 +72,14 @@ if __name__ == '__main__':
 
     dataset = {
         'features': {
-            'host': x[:, :15],
+            'host.0': x[:, :15],
             'bob': None,
         },
         'label': {
             'alice': y,
         },
     }
-    load_dotenv('/root/develop/ant-sf/secretflow/impl/env/sgb-env-alice.env')
+    load_dotenv(env_file)
     for key, value in os.environ.items():
         print(f"{key}: {value}")
 
@@ -91,9 +101,39 @@ if __name__ == '__main__':
         "sk_keeper": GetParamEnv('sk_keeper'),
         "evaluators": GetParamEnv('evaluators'),
         "he_parameters": GetParamEnv('he_parameters'),
+        "feature_select": GetParamEnv('feature_select'),
     }
-    create_context = Context()
+    # ctx = CreateIcContext()
     print(config)
-    ctx = create_context.MakeLink()
-    print(ctx.rank)
-    # run()
+    # if ctx:
+    #     print("CreateIcContext success")
+    #     party = P
+    #     # 创建context成功, 并互相连接
+    #     # 启动每一方party
+    # # run()
+
+    sfd.set_distribution_mode(mode=DISTRIBUTION_MODE.INTERCONNECTION)
+    LinkProxy.init()
+    print("LinkProxy init success")
+    config = {
+        'xgb': {
+            "num_round": GetParamEnv('num_round'),
+            "max_depth": GetParamEnv('max_depth'),
+            "bucket_eps": GetParamEnv('bucket_eps'),
+            "objective": GetParamEnv('objective'),
+            "reg_lambda": GetParamEnv('reg_lambda'),
+            "row_sample_by_tree": GetParamEnv,
+            "col_sample_by_tree": GetParamEnv('col_sample_by_tree'),
+            "gamma": GetParamEnv('gamma'),
+            "use_completely_sgb": GetParamEnv('use_completely_sgb'),
+        },
+        'heu': {
+            "sk_keeper": GetParamEnv('sk_keeper'),
+            "evaluators": GetParamEnv('evaluators'),
+            "he_parameters": GetParamEnv('he_parameters'),
+        },
+    }
+    handler = SgbIcHandler(config)
+    handler.run_algo()
+
+    LinkProxy.stop()

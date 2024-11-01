@@ -16,14 +16,16 @@ import abc
 import logging
 from typing import List, Tuple
 
+import pandas as pd
 import spu
+from link_proxy import LinkProxy
+from util import *
 
 import secretflow as sf
 from secretflow.data import FedNdarray, PartitionWay
 from secretflow.device.driver import reveal
 from secretflow.ic.handler.algo import xgb
 from secretflow.ic.handler.protocol_family import phe
-from secretflow.ic.proxy import LinkProxy
 from secretflow.ml.boost.sgb_v import Sgb, SgbModel
 
 # Copyright 2023 Ant Group Co., Ltd.
@@ -42,8 +44,8 @@ from secretflow.ml.boost.sgb_v import Sgb, SgbModel
 
 
 class SgbIcHandler:
-    def __init__(self, config: dict, dataset: dict):
-        self._dataset = dataset
+    def __init__(self, config: dict):
+        self._dataset = None
         self._xgb = xgb.XgbConfig(config['xgb'])
         self._phe = phe.PheConfig(config['heu'])
 
@@ -51,13 +53,14 @@ class SgbIcHandler:
 
         print('+++++++++++++++ run sgb ++++++++++++++++++')
         params = self._process_params()
+        self._read_dataset()
         x, y = self._process_dataset()
         model = self._train(params, x, y)
         self._evaluate(model, x, y)
 
     def _process_params(self) -> dict:
-        self_party = LinkProxy.self_party
-        active_party = LinkProxy.all_parties[0]
+        self_rank = LinkProxy.self_rank
+        active_rank = LinkProxy.recv_rank
 
         params = {
             "enable_packbits": True,
@@ -71,7 +74,7 @@ class SgbIcHandler:
             "first_tree_with_label_holder_feature": self._xgb.use_completely_sgb,
         }
 
-        if self_party == active_party:
+        if self_rank == active_rank:
             params.update(
                 {
                     "objective": self._xgb.objective,
@@ -82,9 +85,27 @@ class SgbIcHandler:
 
         return params
 
-    def _process_dataset(self) -> Tuple[FedNdarray, FedNdarray]:
+    def _read_dataset(self):
+        input_file = get_input_filename(defult_file='../data/test_data.csv')
+        chunk_size = 1000
+        chunks = []
+        for chunk in pd.read_csv(input_file, chunksize=chunk_size):
+            chunks.append(chunk)
+        feature_select = GetParamEnv('feature_select')
         self_party = LinkProxy.self_party
-        active_party = LinkProxy.all_parties[0]
+        columns = feature_select[self_party]
+
+        df = pd.concat(chunks, ignore_index=True)
+        print('+++++++++++++++ read dataset ++++++++++++++++++')
+        self._dataset = {'features': {}, 'label': {}}
+
+    def _process_dataset(self) -> Tuple[FedNdarray, FedNdarray]:
+
+        print('+++++++++++++++ process dataset ++++++++++++++++++')
+        self_rank = LinkProxy.self_rank
+        active_rank = LinkProxy.recv_rank
+        self_party = LinkProxy.self_party
+        active_party = LinkProxy.all_parties[active_rank]
 
         v_data = FedNdarray({}, partition_way=PartitionWay.VERTICAL)
         for party, feature in self._dataset['features'].items():
