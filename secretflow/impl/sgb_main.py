@@ -1,4 +1,5 @@
 import argparse
+import ast
 import logging
 import os
 
@@ -53,64 +54,9 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     logging.info("Starting 互联互通 SGB...")
 
-    # 不用握手来协调参数
-    # try:
-    #     # 创建链接
-
-    #     pass
-    #     # 初始化
-    #     pass
-    #     # 启动运行算法
-    #     pass
-    #     # 结束连接
-    # except Exception as e:
-    #     logging.error(f"Error occurred: {e}")
-
-    logging.info("互联互通 SGB finished.")
-    ds = load_breast_cancer()
-    x, y = ds["data"], ds["target"]
-
-    dataset = {
-        'features': {
-            'host.0': x[:, :15],
-            'bob': None,
-        },
-        'label': {
-            'alice': y,
-        },
-    }
     load_dotenv(env_file)
     for key, value in os.environ.items():
         print(f"{key}: {value}")
-
-    config = {
-        "algo": GetParamEnv('algo'),
-        "learning_rate": GetParamEnv('learning_rate'),
-        "num_epoch": GetParamEnv('num_epoch'),
-        "protocol_families": GetParamEnv('protocol_families'),
-        "start_transport": GetParamEnv('start_transport'),
-        "num_round": GetParamEnv('num_round'),
-        "max_depth": GetParamEnv('max_depth'),
-        "bucket_eps": GetParamEnv('bucket_eps'),
-        "objective": GetParamEnv('objective'),
-        "reg_lambda": GetParamEnv('reg_lambda'),
-        "row_sample_by_tree": GetParamEnv('row_sample_by_tree'),
-        "col_sample_by_tree": GetParamEnv('col_sample_by_tree'),
-        "gamma": GetParamEnv('gamma'),
-        "use_completely_sgb": GetParamEnv('use_completely_sgb'),
-        "sk_keeper": GetParamEnv('sk_keeper'),
-        "evaluators": GetParamEnv('evaluators'),
-        "he_parameters": GetParamEnv('he_parameters'),
-        "feature_select": GetParamEnv('feature_select'),
-    }
-    # ctx = CreateIcContext()
-    print(config)
-    # if ctx:
-    #     print("CreateIcContext success")
-    #     party = P
-    #     # 创建context成功, 并互相连接
-    #     # 启动每一方party
-    # # run()
 
     sfd.set_distribution_mode(mode=DISTRIBUTION_MODE.INTERCONNECTION)
     LinkProxy.init()
@@ -128,11 +74,13 @@ if __name__ == '__main__':
             "use_completely_sgb": GetParamEnv('use_completely_sgb'),
         },
         'heu': {
-            "sk_keeper": GetParamEnv('sk_keeper'),
+            "sk_keeper": ast.literal_eval(GetParamEnv('sk_keeper')),
             "evaluators": GetParamEnv('evaluators'),
-            "he_parameters": GetParamEnv('he_parameters'),
+            "he_parameters": ast.literal_eval(GetParamEnv('he_parameters')),
         },
     }
+    print(type(config['heu']))
+    print(type(config['heu']['he_parameters']))
     handler = SgbIcHandler(config)
     handler.run_algo()
 

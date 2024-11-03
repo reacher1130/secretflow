@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import abc
+import ast
 import logging
 from typing import List, Tuple
 
@@ -45,7 +46,7 @@ from secretflow.ml.boost.sgb_v import Sgb, SgbModel
 
 class SgbIcHandler:
     def __init__(self, config: dict):
-        self._dataset = None
+        self._dataset = dict()
         self._xgb = xgb.XgbConfig(config['xgb'])
         self._phe = phe.PheConfig(config['heu'])
 
@@ -91,13 +92,29 @@ class SgbIcHandler:
         chunks = []
         for chunk in pd.read_csv(input_file, chunksize=chunk_size):
             chunks.append(chunk)
-        feature_select = GetParamEnv('feature_select')
-        self_party = LinkProxy.self_party
-        columns = feature_select[self_party]
 
         df = pd.concat(chunks, ignore_index=True)
-        print('+++++++++++++++ read dataset ++++++++++++++++++')
-        self._dataset = {'features': {}, 'label': {}}
+        label_owner = GetParamEnv('label_owner')
+        label_name = GetParamEnv('label_name')
+
+        self_party = LinkProxy.self_party
+        feature_select = ast.literal_eval(GetParamEnv('feature_select'))
+        self._dataset['label'] = dict()
+        self._dataset['label'].update({label_owner: None})
+        if label_owner == self_party:
+            self._dataset['label'][self_party] = df[label_name].values
+
+        print(feature_select[self_party])
+        self._dataset['features'] = dict()
+        print(LinkProxy.all_parties)
+        for party in LinkProxy.all_parties:
+            if party != self_party:
+                self._dataset['features'].update({party: None})
+            else:
+
+                self._dataset['features'].update(
+                    {party: df.loc[:, feature_select[party]].values}
+                )
 
     def _process_dataset(self) -> Tuple[FedNdarray, FedNdarray]:
 
@@ -108,6 +125,7 @@ class SgbIcHandler:
         active_party = LinkProxy.all_parties[active_rank]
 
         v_data = FedNdarray({}, partition_way=PartitionWay.VERTICAL)
+
         for party, feature in self._dataset['features'].items():
             if party == self_party:
                 assert feature is not None
@@ -129,6 +147,7 @@ class SgbIcHandler:
         return v_data, label_data
 
     def _train(self, params: dict, x: FedNdarray, y: FedNdarray) -> SgbModel:
+        print(self._phe.config)
         heu = sf.HEU(self._phe.config, spu.spu_pb2.FM128)
         sgb = Sgb(heu)
         return sgb.train(params, x, y)

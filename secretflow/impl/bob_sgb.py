@@ -15,30 +15,20 @@ config = {
                 'listen_addr': '0.0.0.0:9845',
             },
         },
-        'self_party': 'alice',
+        'self_party': 'bob',
     },
     'xgb': {
-        "num_round": 5,
-        "max_depth": 5,
-        "bucket_eps": 0.08,
-        "objective": "logistic",
-        "reg_lambda": 0.3,
-        "row_sample_by_tree": 0.9,
-        "col_sample_by_tree": 0.9,
-        "gamma": 1,
-        "use_completely_sgb": False,
+        'support_completely_sgb': True,
+        'support_row_sample_by_tree': True,
+        'support_col_sample_by_tree': True,
     },
     'heu': {
         "sk_keeper": {"party": "alice"},
         "evaluators": [{"party": "bob"}],
+        # "mode": "PHEU",
         "he_parameters": {
+            # ou is a fast encryption schema that is as secure as paillier.
             "schema": "ic-paillier",
-            "key_pair": {
-                "generate": {
-                    # bit size should be 2048 to provide sufficient security.
-                    "bit_size": 2048,
-                },
-            },
         },
     },
 }
@@ -48,15 +38,14 @@ x, y = ds["data"], ds["target"]
 
 dataset = {
     'features': {
-        'alice': x[:, :15],
-        'bob': None,
+        'alice': None,
+        'bob': x[:, 15:],
     },
     'label': {
-        'alice': y,
+        'alice': None,
     },
 }
 
-
 from secretflow.ic.runner import run
 
-run(config=config, dataset=dataset, logging_level='debug')
+run(config=config, dataset=dataset, logging_level='info')

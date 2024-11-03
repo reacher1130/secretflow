@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 
 
@@ -28,7 +29,7 @@ def get_io_filename_from_env(input: bool) -> str:
     absolute_path = os.path.join(root_path, relative_path)
     if not input:
         os.makedirs(absolute_path, exist_ok=True)
-
+    logging.info(f"input_filename: {absolute_path}")
     return os.path.join(absolute_path, file_name)
 
 

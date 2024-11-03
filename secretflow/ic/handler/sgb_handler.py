@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import logging
 from typing import List, Tuple
 
 import spu
@@ -37,6 +38,8 @@ class SgbIcHandler(IcHandler):
         super().__init__(dataset)
         self._xgb = xgb.XgbConfig(config['xgb'])
         self._phe = phe.PheConfig(config['heu'])
+
+        print(self._phe)
 
     def _build_handshake_request(self) -> entry_pb2.HandshakeRequest:
         request = entry_pb2.HandshakeRequest()
@@ -299,6 +302,7 @@ class SgbIcHandler(IcHandler):
         return v_data, label_data
 
     def _train(self, params: dict, x: FedNdarray, y: FedNdarray) -> SgbModel:
+        logging.info(self._phe.config)
         heu = sf.HEU(self._phe.config, spu.spu_pb2.FM128)
         sgb = Sgb(heu)
         return sgb.train(params, x, y)

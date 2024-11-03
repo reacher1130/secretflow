@@ -16,10 +16,11 @@ import functools
 import inspect
 from typing import List, Union
 
-from secretflow.ic.proxy import LinkProxy
+# from secretflow.ic.proxy import LinkProxy
 from secretflow.ic.remote.ic_object import IcObject
 from secretflow.ic.remote.remote_class import IcRemoteClass
 from secretflow.ic.remote.remote_function import IcRemoteFunction
+from secretflow.impl.link_proxy import LinkProxy
 
 
 def remote(*args, **kwargs):
