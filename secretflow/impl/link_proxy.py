@@ -40,6 +40,11 @@ class LinkProxy:
         logging.info(f'self party: {cls.self_party}')
         cls.world_size = cls._link.world_size
         cls.all_parties = [cls._link.party_by_rank(i) for i in range(cls.world_size)]
+        logging.info(f'all parties: {cls.all_parties}')
+        cls._parties_rank = {
+            cls._link.party_by_rank(idx): idx for idx in range(cls.world_size)
+        }
+        logging.info(f'parties rank: {cls._parties_rank}')
 
     @classmethod
     def send_raw(cls, dest_party: str, msg_bytes: bytes):
@@ -48,6 +53,7 @@ class LinkProxy:
 
     @classmethod
     def recv_raw(cls, src_party: str) -> bytes:
+        logging.info(f'cls._parties_rank: {cls._parties_rank}')
         rank = cls._parties_rank[src_party]
         return cls._link.recv(rank)
 
@@ -59,6 +65,7 @@ class LinkProxy:
 
     @classmethod
     def recv(cls, src_party: str) -> Any:
+        logging.info(f'recv from {src_party}')
         msg_bytes = cls.recv_raw(src_party)
         data = deserialize(msg_bytes)
         logging.debug(f'recv type {type(data)} from {src_party}')

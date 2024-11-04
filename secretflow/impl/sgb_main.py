@@ -54,9 +54,9 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     logging.info("Starting 互联互通 SGB...")
 
-    load_dotenv(env_file)
-    for key, value in os.environ.items():
-        print(f"{key}: {value}")
+    # load_dotenv(env_file)
+    # for key, value in os.environ.items():
+    #     print(f"{key}: {value}")
 
     sfd.set_distribution_mode(mode=DISTRIBUTION_MODE.INTERCONNECTION)
     LinkProxy.init()
