@@ -16,10 +16,9 @@ class Party:
         else:
             handler_v2.ActiveRun()
 
-
     def CreateHandlerFactory(self):
 
         if self._ctx.algo == entry_pb2.ALGO_TYPE_SGB:
-
-            return SgbHandlerFactory()
+            pass
+            # return SgbHandlerFactory()
         # run

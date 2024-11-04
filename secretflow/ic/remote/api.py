@@ -17,11 +17,12 @@ import inspect
 import logging
 from typing import List, Union
 
+from secretflow.ic.proxy.link_proxy import LinkProxy
+
 # from secretflow.ic.proxy import LinkProxy
 from secretflow.ic.remote.ic_object import IcObject
 from secretflow.ic.remote.remote_class import IcRemoteClass
 from secretflow.ic.remote.remote_function import IcRemoteFunction
-from secretflow.impl.link_proxy import LinkProxy
 
 
 def remote(*args, **kwargs):
@@ -64,7 +65,7 @@ def get(ic_objects: Union[IcObject, List[IcObject]]):
     is_individual_id = isinstance(ic_objects, IcObject)
     if is_individual_id:
         ic_objects = [ic_objects]
-    logging.info("self_party is {}".format(LinkProxy.self_party))
+
     values = []
     for ic_object in ic_objects:
         if ic_object.get_party() == LinkProxy.self_party:

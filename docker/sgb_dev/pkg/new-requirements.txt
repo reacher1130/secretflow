@@ -1,0 +1,10 @@
+Name: secretflow
+Version: 1.9.0b2
+Summary: SecretFlow
+Home-page: https://github.com/secretflow/secretflow
+Author: SCI Center
+Author-email: secretflow-contact@service.alipay.com
+License: Apache 2.0
+Location: /root/miniconda3/envs/secretflow/lib/python3.10/site-packages
+Requires: aiohttp, certifi, clean-text, click, duckdb, grpcio, interconnection, jax, jaxlib, kuscia, multiprocess, networkx, numba, numpy, onnx, pandas, protobuf, pyarrow, ray, s3fs, scikit-learn, sdc-apis, sdc-sdk, secretflow-rayfed, secretflow-serving-lib, setuptools, sf-heu, sparse, sqlglot, tabulate, tensorflow, tf2onnx, torch, torchaudio, torchmetrics, torchvision, tqdm, typing-extensions, validator.py, wheel, xgboost
+Required-by: 

@@ -6,13 +6,13 @@ import os
 from context import CreateIcContext
 from dotenv import load_dotenv
 from impl_handler import SgbIcHandler
-from link_proxy import LinkProxy
 from sklearn.datasets import load_breast_cancer
 from util import *
 
 import secretflow.distributed as sfd
 from secretflow.distributed.primitive import DISTRIBUTION_MODE
-from secretflow.ic.runner import run
+from secretflow.ic.proxy.link_proxy import LinkProxy
+from secretflow.utils.logging import LOG_FORMAT, get_logging_level, set_logging_level
 
 # load_dotenv()
 # 1. 环境变量
@@ -25,19 +25,6 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        '--input_file',
-        type=str,
-        default='/root/develop/ant-sf/secretflow/impl/data/breast_cancer_a.csv',
-        help='input file',
-    )
-    parser.add_argument(
-        '--output_file',
-        type=str,
-        default='/root/develop/ant-sf/secretflow/impl/data/breast_cancer_a.csv',
-        help='output file',
-    )
-    # parser.add_argument()
-    parser.add_argument(
         '--env_file',
         type=str,
         default='/root/develop/ant-sf/secretflow/impl/env/sgb-env-alice.env',
@@ -45,42 +32,36 @@ if __name__ == '__main__':
     )
 
     args = parser.parse_args()
-
-    input_filename = get_input_filename(defult_file=args.input_file)
-    output_filename = get_output_filename(defult_file=args.output_file)
-    print(f'input_filename: {input_filename}')
-    print(f'output_filename: {output_filename}')
     env_file = args.env_file
-    logging.basicConfig(level=logging.INFO)
-    logging.info("Starting 互联互通 SGB...")
 
-    # load_dotenv(env_file)
-    # for key, value in os.environ.items():
-    #     print(f"{key}: {value}")
+    set_logging_level(level='debug')
+    logging.basicConfig(level=get_logging_level(), format=LOG_FORMAT)
 
+    logging.info("-----------Starting 互联互通 SGB...-----------")
+    load_dotenv(env_file)
+    logging.info("-----------sfd分布式模式: 互联互通-----------")
     sfd.set_distribution_mode(mode=DISTRIBUTION_MODE.INTERCONNECTION)
     LinkProxy.init()
-    print("LinkProxy init success")
+    logging.info("-----------建立连接, 初始化成功-----------")
     config = {
         'xgb': {
-            "num_round": GetParamEnv('num_round'),
-            "max_depth": GetParamEnv('max_depth'),
-            "bucket_eps": GetParamEnv('bucket_eps'),
-            "objective": GetParamEnv('objective'),
-            "reg_lambda": GetParamEnv('reg_lambda'),
-            "row_sample_by_tree": GetParamEnv,
-            "col_sample_by_tree": GetParamEnv('col_sample_by_tree'),
-            "gamma": GetParamEnv('gamma'),
-            "use_completely_sgb": GetParamEnv('use_completely_sgb'),
+            "num_round": int(GetParamEnv('num_round')),
+            "max_depth": int(GetParamEnv('max_depth')),
+            "bucket_eps": float(GetParamEnv('bucket_eps')),
+            "objective": str(GetParamEnv('objective')),
+            "reg_lambda": float(GetParamEnv('reg_lambda')),
+            "row_sample_by_tree": float(GetParamEnv('row_sample_by_tree')),
+            "col_sample_by_tree": float(GetParamEnv('col_sample_by_tree')),
+            "gamma": float(GetParamEnv('gamma')),
+            "use_completely_sgb": bool(GetParamEnv('use_completely_sgb')),
         },
         'heu': {
             "sk_keeper": ast.literal_eval(GetParamEnv('sk_keeper')),
-            "evaluators": GetParamEnv('evaluators'),
+            "evaluators": ast.literal_eval(GetParamEnv('evaluators')),
             "he_parameters": ast.literal_eval(GetParamEnv('he_parameters')),
         },
     }
-    print(type(config['heu']))
-    print(type(config['heu']['he_parameters']))
+
     handler = SgbIcHandler(config)
     handler.run_algo()
 

@@ -53,7 +53,7 @@ class LinkProxy:
 
     @classmethod
     def recv_raw(cls, src_party: str) -> bytes:
-        logging.info(f'cls._parties_rank: {cls._parties_rank}')
+        # logging.info(f'cls._parties_rank: {cls._parties_rank}')
         rank = cls._parties_rank[src_party]
         return cls._link.recv(rank)
 
@@ -61,14 +61,14 @@ class LinkProxy:
     def send(cls, dest_party: str, data: Any):
         msg_bytes = serialize(data)
         cls.send_raw(dest_party, msg_bytes)
-        logging.debug(f'send type {type(data)} to {dest_party}')
+        # logging.debug(f'send type {type(data)} to {dest_party}')
 
     @classmethod
     def recv(cls, src_party: str) -> Any:
-        logging.info(f'recv from {src_party}')
+        # logging.info(f'recv from {src_party}')
         msg_bytes = cls.recv_raw(src_party)
         data = deserialize(msg_bytes)
-        logging.debug(f'recv type {type(data)} from {src_party}')
+        # logging.debug(f'recv type {type(data)} from {src_party}')
         return data
 
     @classmethod

@@ -23,10 +23,10 @@ from util import *
 
 import secretflow as sf
 from secretflow.data import FedNdarray, PartitionWay
-from secretflow.device.driver import reveal
+from secretflow.device.driver import reveal, wait
 from secretflow.ic.handler.algo import xgb
 from secretflow.ic.handler.protocol_family import phe
-from secretflow.impl.link_proxy import LinkProxy
+from secretflow.ic.proxy.link_proxy import LinkProxy
 from secretflow.ml.boost.sgb_v import Sgb, SgbModel
 
 # Copyright 2023 Ant Group Co., Ltd.
@@ -51,8 +51,7 @@ class SgbIcHandler:
         self._phe = phe.PheConfig(config['heu'])
 
     def run_algo(self):
-
-        print('+++++++++++++++ run sgb ++++++++++++++++++')
+        logging.info("-----------运行SGB算法-----------")
         params = self._process_params()
         self._read_dataset()
         x, y = self._process_dataset()
@@ -104,9 +103,7 @@ class SgbIcHandler:
         if label_owner == self_party:
             self._dataset['label'][self_party] = df[label_name].values
 
-        print(feature_select[self_party])
         self._dataset['features'] = dict()
-        print(LinkProxy.all_parties)
         for party in LinkProxy.all_parties:
             if party != self_party:
                 self._dataset['features'].update({party: None})
@@ -118,7 +115,7 @@ class SgbIcHandler:
 
     def _process_dataset(self) -> Tuple[FedNdarray, FedNdarray]:
 
-        print('+++++++++++++++ process dataset ++++++++++++++++++')
+        logging.info("+++++++++++++++ process dataset ++++++++++++++++++")
         self_rank = LinkProxy.self_rank
         active_rank = LinkProxy.recv_rank
         self_party = LinkProxy.self_party
@@ -147,14 +144,25 @@ class SgbIcHandler:
         return v_data, label_data
 
     def _train(self, params: dict, x: FedNdarray, y: FedNdarray) -> SgbModel:
-        print(self._phe.config)
+
         heu = sf.HEU(self._phe.config, spu.spu_pb2.FM128)
         sgb = Sgb(heu)
-        return sgb.train(params, x, y)
+        model = sgb.train(params, x, y)
+        self._save_model(model, x.partitions.keys())
+        return model
+
+    def _save_model(self, model: SgbModel, parties):
+        logging.info("+++++++++++++++ save model ++++++++++++++++++")
+        out_put_path = get_output_filename(defult_file='./out_puts/')
+        save_path_dict = {
+            device: os.path.join(out_put_path, device.party) for device in parties
+        }
+        r = model.save_model(save_path_dict)
+        wait(r)
 
     @staticmethod
     def _evaluate(model: SgbModel, x: FedNdarray, y: FedNdarray):
-        print('+++++++++++++++ evaluate ++++++++++++++++++')
+        logging.info("+++++++++++++++ evaluate ++++++++++++++++++")
         yhat = model.predict(x)
 
         yhat = reveal(yhat)
@@ -162,4 +170,4 @@ class SgbIcHandler:
 
         from sklearn.metrics import roc_auc_score
 
-        print(f"auc: {roc_auc_score(y, yhat)}")
+        logging.info(f"auc: {roc_auc_score(y, yhat)}")

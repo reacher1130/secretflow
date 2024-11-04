@@ -22,27 +22,11 @@ RUN yum install -y protobuf libnl3 libgomp && yum clean all
 
 RUN grep -rl '#!/root/miniconda3/envs/secretflow/bin' /usr/local/bin/ | xargs sed -i -e 's/#!\/root\/miniconda3\/envs\/secretflow/#!\/usr\/local/g'
 
-COPY *.whl /tmp/
+COPY ./pkg/*.whl /tmp/
 
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/  kuscia
-RUN pip install -i https://mirrors.aliyun.com/pypi/simple/   /tmp/*.whl && rm -rf /root/.cache
+RUN pip install /tmp/*.whl && rm -rf /root/.cache
 
 COPY .nsjail /root/.nsjail
-
-ARG config_templates=""
-RUN echo "########################################" \
-    && echo "$config_templates" \
-    && echo "####################################"
-LABEL kuscia.secretflow.config-templates=$config_templates
-
-ARG deploy_templates=""
-LABEL kuscia.secretflow.deploy-templates=$deploy_templates
-
-ARG comp_list=""
-LABEL kuscia.secretflow.comp_list=$comp_list
-
-ARG translation=""
-LABEL kuscia.secretflow.translation=$translation
 
 # run as root for now
 WORKDIR /root
