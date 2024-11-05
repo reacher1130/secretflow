@@ -3,10 +3,8 @@ import ast
 import logging
 import os
 
-from context import CreateIcContext
 from dotenv import load_dotenv
 from impl_handler import SgbIcHandler
-from sklearn.datasets import load_breast_cancer
 from util import *
 
 import secretflow.distributed as sfd
@@ -14,33 +12,44 @@ from secretflow.distributed.primitive import DISTRIBUTION_MODE
 from secretflow.ic.proxy.link_proxy import LinkProxy
 from secretflow.utils.logging import LOG_FORMAT, get_logging_level, set_logging_level
 
-# load_dotenv()
-# 1. 环境变量
-# 2. 根据环境变量设置参与方角色
-# 3. 读取环境变量，读入csv数据转为dict
-# 3. 运行
 
-
-if __name__ == '__main__':
+def main():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        '--run_mode',
+        type=str,
+        default='debug',
+        choices=['production', 'debug'],
+        help='run_mode',
+    )
+    parser.add_argument(
         '--env_file',
         type=str,
-        default='/root/develop/ant-sf/secretflow/impl/env/sgb-env-alice.env',
+        default='./env/interconnection.env',
         help='env_file',
+        required=False,
     )
     args = parser.parse_args()
-    env_file = args.env_file
+    if args.run_mode == 'debug':
+        if args.env_file:
+            load_dotenv(args.env_file)
+            print(f"Using environment file: {args.env_file}")
+        else:
+            print("No environment file provided for debug mode.")
 
     set_logging_level(level='debug')
     logging.basicConfig(level=get_logging_level(), format=LOG_FORMAT)
 
+    if GetParamEnv('algo') != 'sgb' or GetParamEnv('protocol_families') != 'phe':
+        raise ValueError(
+            f"Invalid algorithm and protocol families combination: {GetParamEnv('algo')} and {GetParamEnv('protocol_families')}"
+        )
+
     logging.info("-----------Starting 互联互通 SGB...-----------")
-    load_dotenv(env_file)
-    logging.info("-----------sfd分布式模式: 互联互通-----------")
+    logging.info("-----------分布式引擎计算模式: 互联互通-----------")
     sfd.set_distribution_mode(mode=DISTRIBUTION_MODE.INTERCONNECTION)
-    LinkProxy.init()
+    LinkProxy.init(start_transport=str_to_bool(GetParamEnv('start_transport')))
     logging.info("-----------建立连接, 初始化成功-----------")
     config = {
         'xgb': {
@@ -52,7 +61,7 @@ if __name__ == '__main__':
             "row_sample_by_tree": float(GetParamEnv('row_sample_by_tree')),
             "col_sample_by_tree": float(GetParamEnv('col_sample_by_tree')),
             "gamma": float(GetParamEnv('gamma')),
-            "use_completely_sgb": bool(GetParamEnv('use_completely_sgb')),
+            "use_completely_sgb": str_to_bool(GetParamEnv('use_completely_sgb')),
         },
         'heu': {
             "sk_keeper": ast.literal_eval(GetParamEnv('sk_keeper')),
@@ -65,3 +74,12 @@ if __name__ == '__main__':
     handler.run_algo()
 
     LinkProxy.stop()
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except Exception as e:
+        logging.exception(f"unexpected exception")
+        logging.shutdown()
+        os._exit(1)

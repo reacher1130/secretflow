@@ -86,7 +86,7 @@ class SgbIcHandler:
         return params
 
     def _read_dataset(self):
-        input_file = get_input_filename(defult_file='../data/test_data.csv')
+        input_file = get_input_filename(default_file='../data/test_data.csv')
         chunk_size = 1000
         chunks = []
         for chunk in pd.read_csv(input_file, chunksize=chunk_size):
@@ -95,11 +95,12 @@ class SgbIcHandler:
         df = pd.concat(chunks, ignore_index=True)
         label_owner = GetParamEnv('label_owner')
         label_name = GetParamEnv('label_name')
+        feature_select = ast.literal_eval(GetParamEnv('feature_select'))
 
         self_party = LinkProxy.self_party
-        feature_select = ast.literal_eval(GetParamEnv('feature_select'))
         self._dataset['label'] = dict()
         self._dataset['label'].update({label_owner: None})
+
         if label_owner == self_party:
             self._dataset['label'][self_party] = df[label_name].values
 
@@ -108,7 +109,6 @@ class SgbIcHandler:
             if party != self_party:
                 self._dataset['features'].update({party: None})
             else:
-
                 self._dataset['features'].update(
                     {party: df.loc[:, feature_select[party]].values}
                 )
@@ -153,7 +153,7 @@ class SgbIcHandler:
 
     def _save_model(self, model: SgbModel, parties):
         logging.info("+++++++++++++++ save model ++++++++++++++++++")
-        out_put_path = get_output_filename(defult_file='./out_puts/')
+        out_put_path = get_output_filename(default_file='./out_puts/')
         save_path_dict = {
             device: os.path.join(out_put_path, device.party) for device in parties
         }

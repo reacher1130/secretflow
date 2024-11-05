@@ -36,7 +36,18 @@ if sys.version_info.major == 3 and sys.version_info.minor == 8:
         exit(1)
 
 
-from . import component, data, device, ic, kuscia, ml, preprocessing, security, utils
+from . import (
+    component,
+    data,
+    device,
+    ic,
+    impl,
+    kuscia,
+    ml,
+    preprocessing,
+    security,
+    utils,
+)
 from .device import (
     HEU,
     PYU,
@@ -64,6 +75,7 @@ __all__ = [
     'preprocessing',
     'security',
     'utils',
+    'impl',
     'ic',
     'HEU',
     'PYU',

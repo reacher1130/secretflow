@@ -3,7 +3,17 @@ import logging
 import os
 
 
+def str_to_bool(s):
+    if s.lower() == 'true':
+        return True
+    elif s.lower() == 'false':
+        return False
+    else:
+        raise ValueError('Cannot convert string to boolean: ' + s)
+
+
 def GetParamEnv(env_name: str) -> str:
+
     return os.getenv("runtime.component.parameter." + env_name)
 
 
@@ -40,16 +50,16 @@ def get_output_filename_from_env() -> str:
     return get_io_filename_from_env(False)
 
 
-def get_input_filename(defult_file) -> str:
-    input_filename = defult_file
+def get_input_filename(default_file) -> str:
+    input_filename = default_file
     input_optional = get_input_filename_from_env()
     if input_optional is not None:
         input_filename = input_optional
     return input_filename
 
 
-def get_output_filename(defult_file) -> str:
-    output_filename = defult_file
+def get_output_filename(default_file) -> str:
+    output_filename = default_file
     output_optional = get_output_filename_from_env()
     if output_optional is not None:
         output_filename = output_optional

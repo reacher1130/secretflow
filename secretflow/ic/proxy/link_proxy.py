@@ -31,9 +31,9 @@ class LinkProxy:
     _parties_rank = None
 
     @classmethod
-    def init(cls):
-
-        cls._link = link.CreateLinkContextForBlackBox(start_stransport=True)
+    def init(cls, start_transport: bool):
+        logging.info(f'start transport: {start_transport}')
+        cls._link = link.CreateLinkContextForBlackBox(start_stransport=start_transport)
         cls.self_rank = cls._link.rank
         logging.info(f'self rank: {cls.self_rank}')
         cls.self_party = cls._link.party_by_rank(cls.self_rank)
