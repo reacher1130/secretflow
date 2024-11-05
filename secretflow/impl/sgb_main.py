@@ -19,7 +19,7 @@ def main():
     parser.add_argument(
         '--run_mode',
         type=str,
-        default='debug',
+        default='production',
         choices=['production', 'debug'],
         help='run_mode',
     )

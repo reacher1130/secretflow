@@ -22,6 +22,7 @@ cd src_copied
 
 source ~/.bashrc
 conda create -n build python=3.10 -y
+conda init
 conda activate build
 
 python3 setup.py bdist_wheel
