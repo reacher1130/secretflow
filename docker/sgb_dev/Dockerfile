@@ -31,4 +31,4 @@ COPY .nsjail /root/.nsjail
 # run as root for now
 WORKDIR /root
 
-CMD ["/bin/bash"]
+CMD ["/bin/bash", ]

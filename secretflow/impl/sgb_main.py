@@ -30,7 +30,6 @@ if __name__ == '__main__':
         default='/root/develop/ant-sf/secretflow/impl/env/sgb-env-alice.env',
         help='env_file',
     )
-
     args = parser.parse_args()
     env_file = args.env_file
 

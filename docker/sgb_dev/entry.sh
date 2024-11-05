@@ -26,4 +26,4 @@ conda activate build
 
 python3 setup.py bdist_wheel
 
-cp dist/* ../src/docker/sgb_dev/
+cp dist/* ../src/docker/sgb_dev/pkg/
