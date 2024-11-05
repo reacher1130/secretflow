@@ -13,7 +13,7 @@
 # limitations under the License.
 import logging
 import math
-from typing import List, Tuple
+from typing import List, Tuple, Union
 
 import jax.numpy as jnp
 import numpy as np
@@ -22,25 +22,28 @@ from scipy import stats
 import secretflow as sf
 from secretflow.data import partition
 from secretflow.data.vertical import VDataFrame
-from secretflow.device import SPU, SPUObject, reveal
+from secretflow.device import SPU, PYUObject, SPUObject, reveal
 from secretflow.ml.linear.ss_glm.core.distribution import DistributionType, get_dist
 from secretflow.ml.linear.ss_glm.core.link import LinkType, get_link
-from secretflow.utils.blocked_ops import (
-    block_compute,
-    block_compute_vdata,
-    cut_device_object,
-    cut_vdata,
-)
-
-from .core.utils import newton_matrix_inverse
+from secretflow.utils.blocked_ops import block_compute, cut_device_object, cut_vdata
 
 
 def _compute_scale(
-    spu: SPU, y: VDataFrame, yhat: SPUObject, power: float, samples: int, features: int
+    spu: SPU,
+    y: VDataFrame,
+    yhat: SPUObject,
+    power: float,
+    sample_num_weighted: float,
+    feature_rank: int,
+    sample_weights: Union[None, PYUObject],
 ):
     y_blocks = cut_vdata(y, 100 * 10000, spu)
     yhat_blocks = cut_device_object(yhat, 100 * 10000, spu)
-    blocks = zip(y_blocks, yhat_blocks)
+    if sample_weights is not None:
+        sample_weights_blocks = cut_device_object(sample_weights, 100 * 10000, spu)
+        blocks = zip(y_blocks, yhat_blocks, sample_weights_blocks)
+    else:
+        blocks = zip(y_blocks, yhat_blocks)
 
     def _rss(block):
         block_y, block_yhat = block
@@ -48,8 +51,29 @@ def _compute_scale(
         block_y = block_y.reshape((-1, 1))
         return jnp.sum(jnp.square(block_y - block_yhat) / jnp.power(block_yhat, power))
 
-    rss = reveal(block_compute(blocks, spu, _rss, lambda x, y: x + y))
-    return rss / (samples - features)
+    def _rss_weighted(block):
+        block_y, block_yhat, block_sample_weights = block
+        block_yhat = block_yhat.reshape((-1, 1))
+        block_y = block_y.reshape((-1, 1))
+        return jnp.sum(
+            jnp.square(block_y - block_yhat)
+            * block_sample_weights
+            / jnp.power(block_yhat, power)
+        )
+
+    if sample_weights is not None:
+        rss = reveal(block_compute(blocks, spu, _rss_weighted, lambda x, y: x + y))
+    else:
+        rss = reveal(block_compute(blocks, spu, _rss, lambda x, y: x + y))
+    return rss / (sample_num_weighted - feature_rank - 1.0)
+
+
+def rank_of_union_of_vectors(x):
+    # I understand this is not right.
+    # However, this is good enough for n >> p
+    # If you find pvalue results is different from sklearn or statsmodel when n is small, say 300
+    # it's normal.
+    return x.shape[1]
 
 
 def _hessian_matrix(
@@ -62,6 +86,10 @@ def _hessian_matrix(
     tweedie_power: float,
     row_number: int,
     y_scale: float,
+<<<<<<< HEAD
+=======
+    sample_weights: Union[PYUObject, None],
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 ):
     if y_scale > 1:
         y_device = list(y.partitions.keys())[0]
@@ -73,10 +101,20 @@ def _hessian_matrix(
         yhat = yhat.device(lambda y, scale: y / scale)(yhat, y_scale)
 
     x_shape = x.shape
+    if sample_weights is not None:
+        wnobs = sample_weights.device(lambda x: x.sum())(sample_weights)
+        # may improve security later
+        nf_model = reveal(wnobs)
+    else:
+        nf_model = x_shape[0]
+    df_model = rank_of_union_of_vectors(x)
+
     if dist == DistributionType.Gamma:
-        scale = _compute_scale(spu, y, yhat, 2, x_shape[0], x_shape[1])
+        scale = _compute_scale(spu, y, yhat, 2, nf_model, df_model, sample_weights)
     elif dist == DistributionType.Tweedie:
-        scale = _compute_scale(spu, y, yhat, tweedie_power, x_shape[0], x_shape[1])
+        scale = _compute_scale(
+            spu, y, yhat, tweedie_power, nf_model, df_model, sample_weights
+        )
     else:
         scale = 1
 
@@ -94,12 +132,57 @@ def _hessian_matrix(
         XTAX = jnp.matmul(XTA, x)
         return XTAX
 
+    def _h_w(x_y_sample_weights: List[np.ndarray]):
+        x, yhat, sample_weights = x_y_sample_weights
+        yhat = yhat.reshape((-1, 1))
+        v = dist.variance(yhat)
+        g_gradient = link.link_derivative(yhat)
+        A_dig = 1 / dist.scale() / (v * g_gradient) / g_gradient
+        A_dig *= sample_weights
+        XAT = x * A_dig
+        XTA = jnp.transpose(XAT)
+        XTAX = jnp.matmul(XTA, x)
+        return XTAX
+
     x_blocks = cut_vdata(x, row_number, spu, True)
     yhat_blocks = cut_device_object(yhat, row_number, spu)
-    blocks = zip(x_blocks, yhat_blocks)
-    return block_compute(blocks, spu, _h, lambda x, y: x + y)
+    if sample_weights is not None:
+        sample_weights_blocks = cut_device_object(sample_weights, row_number, spu)
+        blocks = zip(x_blocks, yhat_blocks, sample_weights_blocks)
+        return block_compute(blocks, spu, _h_w, lambda x, y: x + y)
+    else:
+        blocks = zip(x_blocks, yhat_blocks)
+        return block_compute(blocks, spu, _h, lambda x, y: x + y)
 
 
+<<<<<<< HEAD
+=======
+def _xTx(
+    spu: SPU,
+    x: VDataFrame,
+    row_number: int,
+    sample_weights: Union[PYUObject, None] = None,
+):
+    def _xtx_w(x_w: List[np.ndarray]):
+        x, w = x_w
+        Xw = x * w
+        XwT = jnp.transpose(Xw)
+        XwTX = jnp.matmul(XwT, x)
+        return XwTX
+
+    def _xtx(x: List[np.ndarray]):
+        return x.T @ x
+
+    x_blocks = cut_vdata(x, row_number, spu, True)
+    if sample_weights is not None:
+        sample_weights_blocks = cut_device_object(sample_weights, row_number, spu)
+        blocks = zip(x_blocks, sample_weights_blocks)
+        return block_compute(blocks, spu, _xtx_w, lambda x, y: x + y)
+    else:
+        return block_compute(x_blocks, spu, _xtx, lambda x, y: x + y)
+
+
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 def _z_square_value(H_inv: np.ndarray, w: np.ndarray):
     assert (
         H_inv.shape[1] == w.shape[0]
@@ -137,6 +220,9 @@ class PValue:
 
     For large dataset(large than 10w samples & 200 features)
     Recommend use [Ring size: 128, Fxp: 40] options for SPU device.
+
+    For SS PVALUE Calculation, we mainly referenced stats model package. The only difference is
+    that dof calculation is simplified.
 
     Attributes:
 
@@ -222,11 +308,17 @@ class PValue:
                 predicted label
             weights : SPUObject
                 features' weight
-
+            sample_weights: Union[None, PYUObject]
+                sample weights
         Return:
             PValue
         """
+        # TODO: complete sample weights for t statistic pvalue later
+        # compute scale similar to z statistics
+        # expose api after linear model supported weights
+        sample_weights = None
         row_number = self._pre_check(x, y, yhat, weights, infeed_elements_limit)
+<<<<<<< HEAD
 
         y_device = list(y.partitions.keys())[0]
         xtx = block_compute_vdata(
@@ -237,19 +329,40 @@ class PValue:
             lambda x, y: x + y,
             pad_ones=True,
         )
+=======
+        if x.shape[0] <= x.shape[1] + 1:
+            raise ValueError(
+                "Security check not passed, if num of samples is less than num of features + 1, then label holder may infer all data."
+            )
+        y_device = list(y.partitions.keys())[0]
+        xtx = _xTx(self.spu, x, row_number, sample_weights)
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
         y = self._prepare_dataset(y)
         assert len(y) == 1, "label should came from one party"
         y = y[0]
         x_shape = x.shape
 
+<<<<<<< HEAD
         xtx_inv = y_device(lambda x: np.linalg.inv(x))(xtx.to(y_device)).to(self.spu)
 
         spu_t = self.spu(_t_square_value)(
             xtx_inv, x_shape[0], x_shape[1], y, yhat, weights
         )
+=======
+        xtx_inv = y_device(lambda x: np.linalg.pinv(x))(xtx.to(y_device)).to(self.spu)
+
+        if sample_weights is not None:
+            wnobs = sample_weights.device(lambda x: x.sum())(sample_weights)
+            # may improve security later
+            nf_model = reveal(wnobs)
+        else:
+            nf_model = x_shape[0]
+        df_model = rank_of_union_of_vectors(x)
+        spu_t = self.spu(_t_square_value)(xtx_inv, nf_model, df_model, y, yhat, weights)
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
         t_square = self._rectify_negative(sf.reveal(spu_t))
         t_values = np.sqrt(t_square)
-        return 2 * (1 - stats.t(x_shape[0] - x_shape[1]).cdf(np.abs(t_values)))
+        return 2 * (1 - stats.t(nf_model - df_model - 1).cdf(np.abs(t_values)))
 
     def z_statistic_p_value(
         self,
@@ -262,6 +375,7 @@ class PValue:
         tweedie_power: float = 1,
         y_scale: float = 1,
         infeed_elements_limit: int = 20000000,
+        sample_weights=None,
     ) -> np.ndarray:
         from secretflow.ml.linear import LinearModel, RegType, SSRegression
 
@@ -286,19 +400,45 @@ class PValue:
                 Specify power for tweedie distribution
             y_scale: float
                 Specify y label scaling sparse used in glm training
+            sample_weights: Union[None, PYUObject]
+                Specify the weight of each sample, should have shape (x, 1)
 
+        WARNING:
+        calculating pvalues will reveal model weight to label holder. Please make sure you have
+        enough security guarantee. Revealing model weight to label holder may lead to privacy leakage.
 
         Return:
             PValue
         """
+        if x.shape[0] <= x.shape[1] + 1:
+            raise ValueError(
+                "Security check not passed, if num of samples is less than num of features + 1, then label holder may infer all data."
+            )
         row_number = self._pre_check(x, y, yhat, weights, infeed_elements_limit)
 
         H = _hessian_matrix(
+<<<<<<< HEAD
             self.spu, x, y, yhat, link, dist, tweedie_power, row_number, y_scale
         )
 
         y_device = list(y.partitions.keys())[0]
         H_inv = y_device(lambda x: np.linalg.inv(x))(H.to(y_device)).to(self.spu)
+=======
+            self.spu,
+            x,
+            y,
+            yhat,
+            link,
+            dist,
+            tweedie_power,
+            row_number,
+            y_scale,
+            sample_weights,
+        )
+
+        y_device = list(y.partitions.keys())[0]
+        H_inv = y_device(lambda x: np.linalg.pinv(x))(H.to(y_device)).to(self.spu)
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 
         spu_z = self.spu(_z_square_value)(H_inv, weights)
         z_square = self._rectify_negative(sf.reveal(spu_z))

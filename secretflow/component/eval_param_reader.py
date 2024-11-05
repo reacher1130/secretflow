@@ -14,10 +14,12 @@
 
 import importlib
 import math
-from dataclasses import dataclass
-from typing import List
 
 from google.protobuf import json_format
+<<<<<<< HEAD
+=======
+from secretflow.component.data_utils import DistDataType
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 from secretflow.spec.v1.component_pb2 import (
     Attribute,
     AttributeDef,
@@ -109,7 +111,11 @@ def get_value(value: Attribute, at: AttrType, pb_cls_name: str = None):
         return list(value.fs)
     elif at == AttrType.AT_INTS:
         return list(value.i64s)
-    elif at == AttrType.AT_STRINGS or at == AttrType.AT_PARTY:
+    elif (
+        at == AttrType.AT_STRINGS
+        or at == AttrType.AT_PARTY
+        or at == AttrType.AT_COL_PARAMS
+    ):
         return list(value.ss)
     elif at == AttrType.AT_BOOLS:
         return list(value.bs)
@@ -146,22 +152,55 @@ class EvalParamReader:
                 f"version inst:'{self._instance.version}' def:'{self._definition.version}' does not match."
             )
 
+        # fill union groups definition path
+        union_group_selection = {}
+        for attr in self._definition.attrs:
+            if attr.type == AttrType.AT_UNION_GROUP:
+                full_name = "/".join(list(attr.prefixes) + [attr.name])
+                union_group_selection[full_name] = None
+
         # attrs
         self._instance_attrs = {}
+        instance_attrs_set = set()
         for path, attr in zip(
             list(self._instance.attr_paths), list(self._instance.attrs)
         ):
             if path in self._instance_attrs:
                 raise EvalParamError(f"attr {path} is duplicate in node def.")
 
+            instance_attrs_set.add(path)
             if not attr.is_na:
                 self._instance_attrs[path] = attr
+
+            # update [path, attr] based on instance
+            if path in union_group_selection:
+                union_group_selection[path] = attr.s
+
+        # add default union group
+        for attr in self._definition.attrs:
+            if attr.type == AttrType.AT_UNION_GROUP:
+                full_name = "/".join(list(attr.prefixes) + [attr.name])
+                if full_name not in self._instance_attrs:
+                    union_group_selection[full_name] = attr.union.default_selection
 
         for attr in self._definition.attrs:
             if attr.type in [AttrType.AT_STRUCT_GROUP, AttrType.ATTR_TYPE_UNSPECIFIED]:
                 continue
 
             full_name = "/".join(list(attr.prefixes) + [attr.name])
+            full_prefix = None
+            skip = False
+            for prefix in attr.prefixes:
+                full_prefix = f"{full_prefix}/{prefix}" if full_prefix else prefix
+                if full_prefix in union_group_selection:
+                    selection = f"{full_prefix}/{union_group_selection[full_prefix]}"
+                    if full_name != selection and not full_name.startswith(
+                        f"{selection}/"
+                    ):
+                        skip = True
+                        break
+
+            instance_attrs_set.discard(full_name)
 
             if full_name not in self._instance_attrs:
                 if attr.type is AttrType.AT_CUSTOM_PROTOBUF:
@@ -175,9 +214,15 @@ class EvalParamReader:
                 elif attr.type is AttrType.AT_PARTY:
                     self._instance_attrs[full_name] = Attribute()
 
+<<<<<<< HEAD
+=======
+                elif attr.type is AttrType.AT_COL_PARAMS:
+                    self._instance_attrs[full_name] = Attribute()
+
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
                 else:
                     # use default value.
-                    if not attr.atomic.is_optional:
+                    if not skip and not attr.atomic.is_optional:
                         raise EvalParamError(
                             f"attr {full_name} is not optional and not set."
                         )
@@ -209,6 +254,13 @@ class EvalParamReader:
             if input_def.name in self._instance_inputs:
                 raise EvalParamError(f"input {input_def.name} is duplicate.")
 
+            if input_instance.type == str(DistDataType.NULL):
+                assert (
+                    input_def.is_optional
+                ), f'def {input_def.name} is not optional and not set.'
+                self._instance_inputs[input_def.name] = None
+                continue
+
             if input_def.types and input_instance.type not in input_def.types:
                 raise EvalParamError(
                     f"type of input {input_def.name} is wrong, got {input_instance.type }, expect {input_def.types}"
@@ -223,6 +275,8 @@ class EvalParamReader:
                     )
 
                 full_name = "/".join(["input", input_def.name, input_attr.name])
+
+                instance_attrs_set.discard(full_name)
 
                 if full_name not in self._instance_attrs:
                     self._instance_attrs[full_name] = Attribute()
@@ -249,6 +303,11 @@ class EvalParamReader:
             if output_def.name in self._instance_outputs:
                 raise EvalParamError(f"output {output_def.name} is duplicate.")
             self._instance_outputs[output_def.name] = output_prefix
+
+        if len(instance_attrs_set) > 0:
+            raise EvalParamError(
+                f"unregistered attrs {instance_attrs_set} in component {self._definition.name}"
+            )
 
     def get_attr(self, name: str):
         if name not in self._instance_attrs:

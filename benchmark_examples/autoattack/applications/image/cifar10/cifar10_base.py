@@ -13,7 +13,11 @@
 # limitations under the License.
 
 from abc import ABC
+<<<<<<< HEAD
 from typing import Dict, List, Tuple
+=======
+from typing import Dict
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 
 import numpy as np
 import torch
@@ -216,9 +220,30 @@ class Cifar10ApplicationBase(ApplicationBase, ABC):
             eval_poison_set,
         )
 
+<<<<<<< HEAD
     def resources_consumes(self) -> List[Dict]:
         # use 1 gpu per trail.
         return [
             {'alice': 0.5, 'CPU': 0.5, 'GPU': 0.005, 'gpu_mem': 6 * 1024 * 1024 * 1024},
             {'bob': 0.5, 'CPU': 0.5, 'GPU': 0.005, 'gpu_mem': 6 * 1024 * 1024 * 1024},
         ]
+=======
+    def tune_metrics(self) -> Dict[str, str]:
+        return {
+            "train_MulticlassAccuracy": "max",
+            "train_MulticlassPrecision": "max",
+            "train_MulticlassAUROC": "max",
+            "val_MulticlassAccuracy": "max",
+            "val_MulticlassPrecision": "max",
+            "val_MulticlassAUROC": "max",
+        }
+
+    def classfication_type(self) -> ClassficationType:
+        return ClassficationType.MULTICLASS
+
+    def base_input_mode(self) -> InputMode:
+        return InputMode.SINGLE
+
+    def dataset_type(self) -> DatasetType:
+        return DatasetType.IMAGE
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9

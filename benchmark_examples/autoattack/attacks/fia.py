@@ -23,7 +23,13 @@ import torch.optim as optim
 from benchmark_examples.autoattack import global_config
 from benchmark_examples.autoattack.attacks.base import AttackCase
 from benchmark_examples.autoattack.global_config import is_simple_test
+<<<<<<< HEAD
 from secretflow import tune
+=======
+from benchmark_examples.autoattack.utils.data_utils import get_np_data_from_dataset
+from benchmark_examples.autoattack.utils.resources import ResourcesPack
+from secretflow.ml.nn.callbacks.attack import AttackCallback
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 from secretflow.ml.nn.core.torch import TorchModel, optim_wrapper
 from secretflow.ml.nn.sl.attacks.fia_torch import FeatureInferenceAttack
 
@@ -130,5 +136,90 @@ class FiaAttackCase(AttackCase):
     def metric_name(self):
         return ['mean_model_loss', 'mean_guess_loss']
 
+<<<<<<< HEAD
     def metric_mode(self):
         return ['min', 'min']
+=======
+class FiaAttackCase(AttackBase):
+    """
+    Fia attack needs:
+    - attacker input shape (without batch size (first dim))
+    - victim input shape (without batch size (first dim))
+    - app.fia_auxiliary_data_builder(): An aux dataloader with some samples.
+    """
+
+    def __init__(self, alice=None, bob=None):
+        super().__init__(alice, bob)
+
+    def __str__(self):
+        return 'fia'
+
+    def build_attack_callback(self, app: ApplicationBase) -> AttackCallback:
+        optim_fn = optim_wrapper(optim.Adam, lr=self.config.get('optim_lr', 0.0001))
+        generator_model = TorchModel(
+            model_fn=Generator,
+            loss_fn=None,
+            optim_fn=optim_fn,
+            metrics=None,
+            attack_dim=app.get_device_y_input_shape()[1:],
+            victim_dim=app.get_device_f_input_shape()[1:],
+        )
+        device_y_sample_dataset = app.get_device_y_train_dataset(
+            frac=0.4, enable_label=1, list_return=True
+        )
+        device_f_sample_dataset = app.get_device_f_train_dataset(
+            frac=0.4, enable_label=1, list_return=True
+        )
+        alice_sample_dataset = (
+            device_y_sample_dataset
+            if app.device_y == app.alice
+            else device_f_sample_dataset
+        )
+        bob_sample_dataset = (
+            device_y_sample_dataset
+            if app.device_y == app.bob
+            else device_f_sample_dataset
+        )
+
+        data_buil = data_builder(
+            alice_sample_dataset, bob_sample_dataset, app.train_batch_size
+        )
+        victim_sample_data = get_np_data_from_dataset(device_f_sample_dataset)
+        victim_sample_data = victim_sample_data.mean(axis=0)
+        victim_mean_attr = victim_sample_data.reshape(victim_sample_data.shape[0], -1)
+        return FeatureInferenceAttack(
+            attack_party=app.device_y,
+            victim_party=app.device_f,
+            base_model_list=[self.alice, self.bob],
+            generator_model_wrapper=generator_model,
+            data_builder=data_buil,
+            victim_fea_dim=app.get_device_f_input_shape()[1:],
+            attacker_fea_dim=app.get_device_y_input_shape()[1:],
+            enable_mean=self.config.get('enale_mean', False),
+            enable_var=True,
+            mean_lambda=1.2,
+            var_lambda=0.25,
+            attack_epochs=self.config.get(
+                'attack_epochs', 1 if is_simple_test() else 5
+            ),
+            victim_mean_feature=victim_mean_attr,
+            exec_device='cuda' if global_config.is_use_gpu() else 'cpu',
+        )
+
+    def attack_type(self) -> AttackType:
+        return AttackType.FEATURE_INFERENCE
+
+    def tune_metrics(self) -> Dict[str, str]:
+        return {'mean_model_loss': 'min', 'mean_guess_loss': 'min'}
+
+    def check_app_valid(self, app: ApplicationBase) -> bool:
+        return app.base_input_mode() in [InputMode.SINGLE]
+
+    def update_resources_consumptions(
+        self, cluster_resources_pack: ResourcesPack, app: ApplicationBase
+    ) -> ResourcesPack:
+        func = lambda x: x * 1.2
+        return cluster_resources_pack.apply_debug_resources(
+            'gpu_mem', func
+        ).apply_sim_resources(app.device_y.party, 'gpu_mem', func)
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9

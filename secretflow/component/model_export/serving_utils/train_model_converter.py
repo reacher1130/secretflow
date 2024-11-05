@@ -124,6 +124,7 @@ def linear_model_converter(
     offset_col: str,
     yhat_scale: float,
     link_type: LinkFunctionType,
+    exp_iters: int,
     pred_name: str,
     traced_input: Dict[str, Set[str]],
 ):
@@ -175,7 +176,7 @@ def linear_model_converter(
             {f: input_features[f] for f in party_features}
         ).dump_serving_pb("tmp")[1]
         party_dot_output_schemas[pyu] = Table.from_schema(
-            {"partial_y": np.float32}
+            {"partial_y": np.float64}
         ).dump_serving_pb("tmp")[1]
 
         party_dot_kwargs[pyu] = {
@@ -189,15 +190,16 @@ def linear_model_converter(
         }
 
         party_merge_input_schemas[pyu] = Table.from_schema(
-            {"partial_y": np.float32}
+            {"partial_y": np.float64}
         ).dump_serving_pb("tmp")[1]
         party_merge_output_schemas[pyu] = Table.from_schema(
-            {"pred_name": np.float32}
+            {pred_name: np.float64}
         ).dump_serving_pb("tmp")[1]
 
         party_merge_kwargs[pyu] = {
             "yhat_scale": yhat_scale,
             "link_function": LinkFunctionType.Name(link_type),
+            "exp_iters": exp_iters,
             "input_col_name": "partial_y",
             "output_col_name": pred_name,
         }
@@ -277,6 +279,13 @@ def ss_glm_converter(
     assert meta["link"] in SS_GLM_LINK_MAP
     label_col = label_col[0]
 
+    link_type = SS_GLM_LINK_MAP[meta["link"]]
+    if link_type == LinkFunctionType.LF_EXP and meta["fxp_exp_mode"] == 2:
+        link_type = LinkFunctionType.LF_EXP_TAYLOR
+        exp_iters = meta["fxp_exp_iters"]
+    else:
+        exp_iters = 0
+
     (
         party_dot_kwargs,
         party_merge_kwargs,
@@ -293,7 +302,8 @@ def ss_glm_converter(
         label_col,
         offset_col,
         yhat_scale,
-        SS_GLM_LINK_MAP[meta["link"]],
+        link_type,
+        exp_iters,
         pred_name,
         traced_input,
     )
@@ -392,6 +402,7 @@ def ss_sgd_converter(
         None,
         1.0,
         link_type,
+        0,
         pred_name,
         traced_input,
     )
@@ -610,7 +621,7 @@ def ss_xgb_converter(
                 {f: input_features[f] for f in party_features}
             ).dump_serving_pb("tmp")[1]
             party_select_outputs[pyu] = Table.from_schema(
-                {"selects": np.float32}
+                {"selects": np.uint64}
             ).dump_serving_pb("tmp")[1]
 
             party_select_kwargs[pyu] = {
@@ -629,10 +640,10 @@ def ss_xgb_converter(
             }
 
             party_merge_inputs[pyu] = Table.from_schema(
-                {"selects": np.float32}
+                {"selects": np.uint64}
             ).dump_serving_pb("tmp")[1]
             party_merge_outputs[pyu] = Table.from_schema(
-                {"weights": np.float32}
+                {"weights": np.float64}
             ).dump_serving_pb("tmp")[1]
 
             party_merge_kwargs[pyu] = {
@@ -659,10 +670,10 @@ def ss_xgb_converter(
 
     for party in input_schema.keys():
         party_predict_inputs[pyus[party]] = Table.from_schema(
-            {"weights": np.float32}
+            {"weights": np.float64}
         ).dump_serving_pb("tmp")[1]
         party_predict_outputs[pyus[party]] = Table.from_schema(
-            {pred_name: np.float32}
+            {pred_name: np.float64}
         ).dump_serving_pb("tmp")[1]
         party_predict_kwargs[pyus[party]] = {
             "input_col_name": "weights",
@@ -762,6 +773,11 @@ def sgb_converter(
     if sgb_model.get_objective() == SgbRegType.Logistic:
         # refer to `SgbModel.predict`
         algo_func_type = LinkFunctionType.LF_SIGMOID_RAW
+<<<<<<< HEAD
+=======
+    elif sgb_model.get_objective() == SgbRegType.Tweedie:
+        algo_func_type = LinkFunctionType.LF_EXP
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
     else:
         algo_func_type = LinkFunctionType.LF_IDENTITY
     algo_func = LinkFunctionType.Name(algo_func_type)
@@ -828,7 +844,7 @@ def sgb_converter(
                 {f: input_features[f] for f in party_features}
             ).dump_serving_pb("tmp")[1]
             party_select_outputs[pyu] = Table.from_schema(
-                {"selects": np.float32}
+                {"selects": np.uint64}
             ).dump_serving_pb("tmp")[1]
 
             party_select_kwargs[pyu] = {
@@ -847,10 +863,10 @@ def sgb_converter(
             }
 
             party_merge_inputs[pyu] = Table.from_schema(
-                {"selects": np.float32}
+                {"selects": np.uint64}
             ).dump_serving_pb("tmp")[1]
             party_merge_outputs[pyu] = Table.from_schema(
-                {"weights": np.float32}
+                {"weights": np.float64}
             ).dump_serving_pb("tmp")[1]
 
             party_merge_kwargs[pyu] = {
@@ -878,10 +894,10 @@ def sgb_converter(
 
     for party in input_schema.keys():
         party_predict_inputs[pyus[party]] = Table.from_schema(
-            {"weights": np.float32}
+            {"weights": np.float64}
         ).dump_serving_pb("tmp")[1]
         party_predict_outputs[pyus[party]] = Table.from_schema(
-            {pred_name: np.float32}
+            {pred_name: np.float64}
         ).dump_serving_pb("tmp")[1]
         party_predict_kwargs[pyus[party]] = {
             "input_col_name": "weights",

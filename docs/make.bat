@@ -45,5 +45,10 @@ goto end
 :help
 %SPHINXBUILD% -M help %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 
+<<<<<<< HEAD
 :end
 popd
+=======
+:end
+popd
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9

@@ -14,7 +14,16 @@
 
 import logging
 
+<<<<<<< HEAD
 from benchmark_examples.autoattack.attacks.base import AttackCase
+=======
+from benchmark_examples.autoattack.applications.base import (
+    ApplicationBase,
+    ClassficationType,
+)
+from benchmark_examples.autoattack.attacks.base import AttackBase, AttackType
+from benchmark_examples.autoattack.utils.resources import ResourcesPack
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 from secretflow import reveal
 from secretflow.ml.nn.sl.attacks.norm_torch import NormAttack
 
@@ -34,8 +43,29 @@ class NormAttackCase(AttackCase):
         # norm attack does not have search space.
         return {}
 
+<<<<<<< HEAD
     def metric_name(self):
         return 'auc'
 
     def metric_mode(self):
         return 'max'
+=======
+    def build_attack_callback(self, app: ApplicationBase) -> AttackCallback:
+        label = reveal(app.get_plain_train_label())
+        return NormAttack(app.device_f, label)
+
+    def attack_type(self) -> AttackType:
+        return AttackType.LABLE_INFERENSE
+
+    def tune_metrics(self) -> Dict[str, str]:
+        return {'auc': 'max'}
+
+    def check_app_valid(self, app: ApplicationBase) -> bool:
+        # TODO: support multiclass
+        return app.classfication_type() in [ClassficationType.BINARY]
+
+    def update_resources_consumptions(
+        self, cluster_resources_pack: ResourcesPack, app: ApplicationBase
+    ) -> ResourcesPack:
+        return cluster_resources_pack
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9

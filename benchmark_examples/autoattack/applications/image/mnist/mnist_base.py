@@ -13,15 +13,30 @@
 # limitations under the License.
 
 from abc import ABC
+<<<<<<< HEAD
 from typing import Dict, List, Tuple
+=======
+from typing import Dict
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 
 import numpy as np
 import torch.utils.data
 from torch.utils.data import DataLoader, TensorDataset
 
+<<<<<<< HEAD
 from benchmark_examples.autoattack.applications.base import ApplicationBase
 from benchmark_examples.autoattack.utils.dataset_utils import sample_ndarray
 from secretflow import reveal
+=======
+from benchmark_examples.autoattack import global_config
+from benchmark_examples.autoattack.applications.base import (
+    ApplicationBase,
+    ClassficationType,
+    DatasetType,
+    InputMode,
+)
+from benchmark_examples.autoattack.utils.resources import ResourceDict, ResourcesPack
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 from secretflow.utils.simulation.datasets import load_mnist
 
 
@@ -31,6 +46,12 @@ class MnistBase(ApplicationBase, ABC):
         config,
         alice,
         bob,
+<<<<<<< HEAD
+=======
+        has_custom_dataset=False,
+        total_fea_nums=1 * 28 * 28,
+        alice_fea_nums=1 * 28 * 14,
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
         epoch=5,
         train_batch_size=128,
         hidden_size=612,
@@ -41,8 +62,14 @@ class MnistBase(ApplicationBase, ABC):
             alice,
             bob,
             device_y=bob,
+<<<<<<< HEAD
             total_fea_nums=4000,
             alice_fea_nums=2000,
+=======
+            has_custom_dataset=has_custom_dataset,
+            total_fea_nums=total_fea_nums,
+            alice_fea_nums=alice_fea_nums,
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
             num_classes=10,
             epoch=epoch,
             train_batch_size=train_batch_size,
@@ -195,8 +222,43 @@ class MnistBase(ApplicationBase, ABC):
             eval_poison_set,
         )
 
+<<<<<<< HEAD
     def resources_consumes(self) -> List[Dict]:
         return [
             {'alice': 0.5, 'CPU': 0.5, 'GPU': 0.005, 'gpu_mem': 6 * 1024 * 1024 * 1024},
             {'bob': 0.5, 'CPU': 0.5, 'GPU': 0.005, 'gpu_mem': 6 * 1024 * 1024 * 1024},
         ]
+=======
+    def resources_consumption(self) -> ResourcesPack:
+        # 980MiB
+        return (
+            ResourcesPack()
+            .with_debug_resources(ResourceDict(gpu_mem=2 * 1024 * 1024 * 1024, CPU=1))
+            .with_sim_resources(
+                self.device_y.party, ResourceDict(gpu_mem=2 * 1024 * 1024 * 1024, CPU=1)
+            )
+            .with_sim_resources(
+                self.device_f.party,
+                ResourceDict(gpu_mem=1.5 * 1024 * 1024 * 1024, CPU=1),
+            )
+        )
+
+    def tune_metrics(self) -> Dict[str, str]:
+        return {
+            "train_MulticlassAccuracy": "max",
+            "train_MulticlassPrecision": "max",
+            "train_MulticlassAUROC": "max",
+            "val_MulticlassAccuracy": "max",
+            "val_MulticlassPrecision": "max",
+            "val_MulticlassAUROC": "max",
+        }
+
+    def classfication_type(self) -> ClassficationType:
+        return ClassficationType.MULTICLASS
+
+    def base_input_mode(self) -> InputMode:
+        return InputMode.SINGLE
+
+    def dataset_type(self) -> DatasetType:
+        return DatasetType.IMAGE
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9

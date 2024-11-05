@@ -12,15 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<< HEAD
 from typing import Dict, List, Optional, Tuple
+=======
+from typing import Dict, Tuple
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 
 import numpy as np
 import torch
 import torch.nn as nn
 from torchmetrics import Accuracy
 
+<<<<<<< HEAD
 import secretflow as sf
 from benchmark_examples.autoattack.applications.base import ApplicationBase
+=======
+from benchmark_examples.autoattack import global_config
+from benchmark_examples.autoattack.applications.base import (
+    ApplicationBase,
+    ClassficationType,
+    DatasetType,
+    InputMode,
+    ModelType,
+)
+from benchmark_examples.autoattack.utils.resources import ResourceDict, ResourcesPack
+from secretflow.data import FedNdarray
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 from secretflow.data.split import train_test_split
 from secretflow.ml.nn.applications.sl_dnn_torch import DnnBase, DnnFuse
 from secretflow.ml.nn.utils import TorchModel, metric_wrapper, optim_wrapper
@@ -42,7 +59,7 @@ class CreditcardDnn(ApplicationBase):
             train_batch_size=1024,
             hidden_size=28,
             dnn_base_units_size_alice=[int(28 / 2), -1],
-            dnn_base_units_size_bob=[4],
+            dnn_base_units_size_bob=[4, -1],
             dnn_fuse_units_size=[1],
         )
 
@@ -91,10 +108,12 @@ class CreditcardDnn(ApplicationBase):
             metrics=[
                 metric_wrapper(Accuracy, task="binary"),
             ],
-            input_dims=[self.hidden_size, 4],
+            input_dims=[self.hidden_size, self.hidden_size],
             dnn_units_size=[1],
+            output_func=nn.Sigmoid,
         )
 
+<<<<<<< HEAD
     def support_attacks(self):
         return ['norm', 'exploit']
 
@@ -130,3 +149,32 @@ class CreditcardDnn(ApplicationBase):
             {'alice': 0.5, 'CPU': 0.5, 'GPU': 0.001, 'gpu_mem': 400 * 1024 * 1024},
             {'bob': 0.5, 'CPU': 0.5, 'GPU': 0.001, 'gpu_mem': 400 * 1024 * 1024},
         ]
+=======
+    def tune_metrics(self) -> Dict[str, str]:
+        return {
+            "train_BinaryAccuracy": "max",
+            "val_BinaryAccuracy": "max",
+        }
+
+    def classfication_type(self) -> ClassficationType:
+        return ClassficationType.BINARY
+
+    def base_input_mode(self) -> InputMode:
+        return InputMode.SINGLE
+
+    def dataset_type(self) -> DatasetType:
+        return DatasetType.TABLE
+
+    def resources_consumption(self) -> ResourcesPack:
+        # 582MiB
+        return (
+            ResourcesPack()
+            .with_debug_resources(ResourceDict(gpu_mem=600 * 1024 * 1024, CPU=1))
+            .with_sim_resources(
+                self.device_y.party, ResourceDict(gpu_mem=600 * 1024 * 1024, CPU=1)
+            )
+            .with_sim_resources(
+                self.device_f.party, ResourceDict(gpu_mem=500 * 1024 * 1024, CPU=1)
+            )
+        )
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9

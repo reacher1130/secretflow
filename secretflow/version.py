@@ -12,7 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+<<<<<<< HEAD
 __version__ = "1.6.1b0"
+=======
+__version__ = "1.9.0.dev$$DATE$$"
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 __commit_id__ = "$$COMMIT_ID$$"
 __docker_version__ = "$$DOCKER_VERSION$$"
 __build_time__ = "$$BUILD_TIME$$"

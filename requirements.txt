@@ -9,7 +9,11 @@ grpcio==1.56.2  # FEATURE=[lite]
 # <=0.4.26 : fix jnp.select numerical problem
 jax[cpu]>=0.4.16,<=0.4.26  # FEATURE=[lite]
 jaxlib>=0.4.16,<=0.4.26  # FEATURE=[lite]
+<<<<<<< HEAD
 kuscia==0.0.2b0  # FEATURE=[lite]
+=======
+kuscia==0.0.2.dev240320  # FEATURE=[lite]
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 multiprocess  # FEATURE=[lite]
 networkx==2.8.8
 numba==0.57.0  # FEATURE=[lite]
@@ -27,13 +31,17 @@ ray==2.9.3  # FEATURE=[lite]
 secretflow-rayfed==0.2.1a2 # FEATURE=[lite]
 aiohttp>=3.9.4,<4 # FEATURE=[lite]
 # For security reason.
-setuptools>=65.5.1  # FEATURE=[lite]
+setuptools>=65.5.1,<70.0.0 # FEATURE=[lite]
 # For security reason.
-certifi>=2023.7.22  # FEATURE=[lite]
+certifi>=2024.7.4  # FEATURE=[lite]
 sparse>=0.14.0
-spu==0.9.0b1 # FEATURE=[lite]
+spu==0.9.1.dev20240524 # FEATURE=[lite]
 sf-heu==0.5.0.b0 # FEATURE=[lite]
+<<<<<<< HEAD
 secretflow_serving_lib==0.3.1b0 # FEATURE=[lite]
+=======
+secretflow_serving_lib==0.5.0.dev20240702  # FEATURE=[lite]
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 tensorflow-macos>=2.12,<2.13; platform_system == "Darwin"
 tensorflow>=2.12,<2.13; platform_system != "Darwin"
 tf2onnx>=1.13.0
@@ -48,3 +56,4 @@ torchvision==0.16.2
 torchaudio==2.1.2
 interconnection==0.2.0.dev0 # FEATURE=[lite]
 h5py!=3.11.0; platform_machine == 'aarch64' # FEATURE=[lite]
+sqlglot==25.5.1 # FEATURE=[lite]

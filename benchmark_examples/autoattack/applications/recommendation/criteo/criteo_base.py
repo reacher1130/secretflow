@@ -14,7 +14,11 @@
 
 from abc import ABC
 from collections import OrderedDict
+<<<<<<< HEAD
 from typing import Callable, Dict, List, Optional, Tuple
+=======
+from typing import Callable, Dict, Optional
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 
 import numpy as np
 import torch
@@ -23,6 +27,11 @@ from torch.utils.data import DataLoader, Dataset
 
 from benchmark_examples.autoattack.applications.base import ApplicationBase
 from benchmark_examples.autoattack.global_config import is_simple_test
+<<<<<<< HEAD
+=======
+from benchmark_examples.autoattack.utils.data_utils import get_sample_indexes
+from benchmark_examples.autoattack.utils.resources import ResourceDict, ResourcesPack
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 from secretflow import reveal
 from secretflow.data.split import train_test_split
 from secretflow.utils.simulation import datasets
@@ -352,8 +361,43 @@ class CriteoBase(ApplicationBase, ABC):
         neg, pos = np.bincount(self.plain_train_label['Label'])
         return neg, pos
 
+<<<<<<< HEAD
     def resources_consumes(self) -> List[Dict]:
         return [
             {'alice': 0.5, 'CPU': 0.5, 'GPU': 0.001, 'gpu_mem': 4 * 1024 * 1024 * 1024},
             {'bob': 0.5, 'CPU': 0.5, 'GPU': 0.001, 'gpu_mem': 4 * 1024 * 1024 * 1024},
         ]
+=======
+    def resources_consumption(self) -> ResourcesPack:
+        # 1786MiB
+        return (
+            ResourcesPack()
+            .with_debug_resources(ResourceDict(gpu_mem=2 * 1024 * 1024 * 1024, CPU=1))
+            .with_sim_resources(
+                self.device_y.party, ResourceDict(gpu_mem=2 * 1024 * 1024 * 1024, CPU=1)
+            )
+            .with_sim_resources(
+                self.device_f.party,
+                ResourceDict(gpu_mem=1.8 * 1024 * 1024 * 1024, CPU=1),
+            )
+        )
+
+    def tune_metrics(self) -> Dict[str, str]:
+        return {
+            "train_BinaryAccuracy": "max",
+            "train_BinaryPrecision": "max",
+            "train_BinaryAUROC": "max",
+            "val_BinaryAccuracy": "max",
+            "val_BinaryPrecision": "max",
+            "val_BinaryAUROC": "max",
+        }
+
+    def classfication_type(self) -> ClassficationType:
+        return ClassficationType.BINARY
+
+    def base_input_mode(self) -> InputMode:
+        return InputMode.MULTI
+
+    def dataset_type(self) -> DatasetType:
+        return DatasetType.RECOMMENDATION
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9

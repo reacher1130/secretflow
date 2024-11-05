@@ -18,6 +18,7 @@ from torchmetrics import AUROC, Accuracy, Precision
 from benchmark_examples.autoattack.applications.image.cifar10.cifar10_base import (
     Cifar10ApplicationBase,
 )
+from benchmark_examples.autoattack.utils.resources import ResourceDict, ResourcesPack
 from secretflow.ml.nn.applications.sl_resnet_torch import (
     BasicBlock,
     ResNetBase,
@@ -84,6 +85,7 @@ class Cifar10Resnet18(Cifar10ApplicationBase):
             dnn_units_size=self.dnn_fuse_units_size,
         )
 
+<<<<<<< HEAD
     def support_attacks(self):
         return ['lia', 'fia', 'replay', 'replace']
 
@@ -98,3 +100,18 @@ class Cifar10Resnet18(Cifar10ApplicationBase):
                 param.detach_()
 
         return model
+=======
+    def resources_consumption(self) -> ResourcesPack:
+        # 980MiB
+        return (
+            ResourcesPack()
+            .with_debug_resources(ResourceDict(gpu_mem=1 * 1024 * 1024 * 1024, CPU=1))
+            .with_sim_resources(
+                self.device_y.party, ResourceDict(gpu_mem=1 * 1024 * 1024 * 1024, CPU=1)
+            )
+            .with_sim_resources(
+                self.device_f.party,
+                ResourceDict(gpu_mem=0.9 * 1024 * 1024 * 1024, CPU=1),
+            )
+        )
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9

@@ -23,7 +23,12 @@ import torch.nn.init as init
 from benchmark_examples.autoattack import global_config
 from benchmark_examples.autoattack.attacks.base import AttackCase
 from benchmark_examples.autoattack.global_config import is_simple_test
+<<<<<<< HEAD
 from secretflow import tune
+=======
+from benchmark_examples.autoattack.utils.resources import ResourcesPack
+from secretflow.ml.nn.callbacks.attack import AttackCallback
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 from secretflow.ml.nn.sl.attacks.lia_torch import LabelInferenceAttack
 
 
@@ -157,8 +162,21 @@ class LiaAttackCase(AttackCase):
             'lambda_u': tune.search.grid_search([40, 60]),  # 40 - 60
         }
 
+<<<<<<< HEAD
     def metric_name(self):
         return 'val_acc_0'
 
     def metric_mode(self):
         return 'max'
+=======
+    def check_app_valid(self, app: ApplicationBase) -> bool:
+        return app.base_input_mode() in [InputMode.SINGLE]
+
+    def update_resources_consumptions(
+        self, cluster_resources_pack: ResourcesPack, app: ApplicationBase
+    ) -> ResourcesPack:
+        func = lambda x: x * 1.3
+        return cluster_resources_pack.apply_debug_resources(
+            'gpu_mem', func
+        ).apply_sim_resources(app.device_f.party, 'gpu_mem', func)
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9

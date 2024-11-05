@@ -34,7 +34,7 @@ class CriteoDeepfm(CriteoBase):
             hidden_size=hidden_size,
             dnn_base_units_size_alice=[256, hidden_size],
             dnn_base_units_size_bob=[256, hidden_size],
-            dnn_fuse_units_size=[64],
+            dnn_fuse_units_size=[64, 1],
             deepfm_embedding_dim=4,
         )
 
@@ -93,6 +93,7 @@ class CriteoDeepfm(CriteoBase):
             ],
             input_dims=[self.hidden_size, self.hidden_size],
             dnn_units_size=self.dnn_fuse_units_size,
+            output_func=nn.Sigmoid,
         )
 
     def support_attacks(self):

@@ -83,7 +83,10 @@ def test_psi(comp_prod_sf_cluster_config):
         attr_paths=[
             "protocol",
             "sort_result",
+<<<<<<< HEAD
             "ecdh_curve_type",
+=======
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
             "allow_duplicate_keys",
             "input/receiver_input/key",
             "input/sender_input/key",
@@ -91,7 +94,10 @@ def test_psi(comp_prod_sf_cluster_config):
         attrs=[
             Attribute(s="PROTOCOL_ECDH"),
             Attribute(b=True),
+<<<<<<< HEAD
             Attribute(s="CURVE_FOURQ"),
+=======
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
             Attribute(s="no"),
             Attribute(ss=["id1"]),
             Attribute(ss=["id2"]),
@@ -234,7 +240,10 @@ def test_psi_left(comp_prod_sf_cluster_config):
         attr_paths=[
             "protocol",
             "sort_result",
+<<<<<<< HEAD
             "ecdh_curve_type",
+=======
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
             "allow_duplicate_keys",
             "allow_duplicate_keys/yes/join_type",
             "allow_duplicate_keys/yes/join_type/left_join/left_side",
@@ -244,7 +253,10 @@ def test_psi_left(comp_prod_sf_cluster_config):
         attrs=[
             Attribute(s="PROTOCOL_ECDH"),
             Attribute(b=True),
+<<<<<<< HEAD
             Attribute(s="CURVE_FOURQ"),
+=======
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
             Attribute(s="yes"),
             Attribute(s="left_join"),
             Attribute(ss=["alice"]),

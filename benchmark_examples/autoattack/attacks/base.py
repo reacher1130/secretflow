@@ -18,8 +18,15 @@ from typing import Dict, List, Optional, Union
 
 from benchmark_examples.autoattack import global_config
 from benchmark_examples.autoattack.applications.base import ApplicationBase
+<<<<<<< HEAD
 from benchmark_examples.autoattack.utils.sync_globals import sync_remote_globals
 from secretflow import PYU, tune
+=======
+from benchmark_examples.autoattack.base import AutoBase
+from benchmark_examples.autoattack.utils.config import read_tune_config
+from benchmark_examples.autoattack.utils.resources import ResourcesPack
+from secretflow.ml.nn.callbacks.attack import AttackCallback
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 
 
 class AttackCase(ABC):
@@ -131,9 +138,18 @@ class AttackCase(ABC):
         )
         return app_search_space
 
+<<<<<<< HEAD
     @abstractmethod
     def attack_search_space(self):
         pass
+=======
+    def update_resources_consumptions(
+        self, cluster_resources_pack: ResourcesPack, app: ApplicationBase
+    ) -> ResourcesPack:
+        """Update the resource consumptions depends on each attack."""
+        pass
+
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
 
     @abstractmethod
     def metric_name(self) -> Union[str, List[str]]:

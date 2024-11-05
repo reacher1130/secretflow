@@ -36,7 +36,7 @@ class MovielensDeepfm(MovielensBase):
             hidden_size=hidden_size,
             dnn_base_units_size_alice=[256, hidden_size],
             dnn_base_units_size_bob=[256, hidden_size],
-            dnn_fuse_units_size=[256, 256, 32],
+            dnn_fuse_units_size=[256, 256, 32, 1],
             deepfm_embedding_dim=4,
         )
 
@@ -82,6 +82,7 @@ class MovielensDeepfm(MovielensBase):
             ],
             input_dims=[self.hidden_size, self.hidden_size],
             dnn_units_size=self.dnn_fuse_units_size,
+            output_func=nn.Sigmoid,
         )
 
     def dnn_base_units_size_range_alice(self) -> Optional[List[List[int]]]:

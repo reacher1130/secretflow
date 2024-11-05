@@ -260,7 +260,9 @@ def read_fillna_write(
         else:
             chunk.to_csv(temp_file_path, mode='a', header=False, index=False)
     # Replace the original file with the processed file
-    os.replace(temp_file_path, csv_file_path)
+    # so chunks > 0
+    if os.path.exists(temp_file_path):
+        os.replace(temp_file_path, csv_file_path)
 
 
 def fill_missing_values(

@@ -21,13 +21,14 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch.nn.init as init
 import torch.optim as optim
-from torchmetrics import Accuracy, Precision
+from torchmetrics import AUROC, Accuracy, Precision
 
 import secretflow as sf
 from benchmark_examples.autoattack import global_config
 from benchmark_examples.autoattack.applications.image.cifar10.cifar10_base import (
     Cifar10ApplicationBase,
 )
+from benchmark_examples.autoattack.utils.resources import ResourceDict, ResourcesPack
 from secretflow.ml.nn import SLModel
 from secretflow.ml.nn.callbacks.callback import Callback
 from secretflow.ml.nn.core.torch import TorchModel, metric_wrapper, optim_wrapper
@@ -261,6 +262,7 @@ class Cifar10Resnet20(Cifar10ApplicationBase):
                 metric_wrapper(
                     Precision, task="multiclass", num_classes=10, average='micro'
                 ),
+                metric_wrapper(AUROC, task="multiclass", num_classes=10),
             ],
         )
 
@@ -306,6 +308,7 @@ class Cifar10Resnet20(Cifar10ApplicationBase):
         )
         return history
 
+<<<<<<< HEAD
     def support_attacks(self):
         return ['lia', 'replay', 'replace']
 
@@ -320,3 +323,18 @@ class Cifar10Resnet20(Cifar10ApplicationBase):
                 param.detach_()
 
         return model
+=======
+    def resources_consumption(self) -> ResourcesPack:
+        # 760MiB
+        return (
+            ResourcesPack()
+            .with_debug_resources(ResourceDict(gpu_mem=1 * 1024 * 1024 * 1024, CPU=1))
+            .with_sim_resources(
+                self.device_y.party, ResourceDict(gpu_mem=1 * 1024 * 1024 * 1024, CPU=1)
+            )
+            .with_sim_resources(
+                self.device_f.party,
+                ResourceDict(gpu_mem=0.8 * 1024 * 1024 * 1024, CPU=1),
+            )
+        )
+>>>>>>> 95547ade7047df593ec6bd1b61845f69527078a9
