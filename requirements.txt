@@ -5,6 +5,7 @@
 # Avoid thead pool fork issue, see https://github.com/grpc/grpc/issues/31772
 clean-text  # FEATURE=[lite]
 click  # FEATURE=[lite]
+python-dotenv # FEATURE=[lite]
 grpcio==1.56.2  # FEATURE=[lite]
 # <=0.4.26 : fix jnp.select numerical problem
 jax[cpu]>=0.4.16,<=0.4.26  # FEATURE=[lite]
@@ -32,7 +33,6 @@ setuptools>=65.5.1,<70.0.0 # FEATURE=[lite]
 # For security reason.
 certifi>=2024.7.4  # FEATURE=[lite]
 sparse>=0.14.0
-# spu==0.9.2b0 # FEATURE=[lite]
 sf-heu==0.5.0.b0 # FEATURE=[lite]
 secretflow_serving_lib==0.6.0b0  # FEATURE=[lite]
 tensorflow-macos>=2.12,<2.13; platform_system == "Darwin"

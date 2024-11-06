@@ -27,6 +27,6 @@ conda create -n build python=3.10 -y
 conda activate build
 # /root/miniconda3/envs/build/bin/activate
 
-python3 setup.py bdist_wheel
+python3 setup.py bdist_wheel --lite
 
 cp dist/* ../src/docker/sgb_dev/pkg/

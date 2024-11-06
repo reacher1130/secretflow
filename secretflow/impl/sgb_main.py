@@ -3,13 +3,11 @@ import ast
 import logging
 import os
 
-from dotenv import load_dotenv
-from impl_handler import SgbIcHandler
-from util import *
-
 import secretflow.distributed as sfd
 from secretflow.distributed.primitive import DISTRIBUTION_MODE
 from secretflow.ic.proxy.link_proxy import LinkProxy
+from secretflow.impl.core.impl_handler import SgbIcHandler
+from secretflow.impl.core.util import *
 from secretflow.utils.logging import LOG_FORMAT, get_logging_level, set_logging_level
 
 
@@ -33,6 +31,8 @@ def main():
     args = parser.parse_args()
     if args.run_mode == 'debug':
         if args.env_file:
+            from dotenv import load_dotenv
+
             load_dotenv(args.env_file)
             print(f"Using environment file: {args.env_file}")
         else:

@@ -354,3 +354,4 @@ temp
 # pytest-testmon db
 .testmondata*
 *BeaverCache*
+*.tar

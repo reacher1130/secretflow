@@ -19,7 +19,6 @@ from typing import List, Tuple
 
 import pandas as pd
 import spu
-from util import *
 
 import secretflow as sf
 from secretflow.data import FedNdarray, PartitionWay
@@ -27,6 +26,7 @@ from secretflow.device.driver import reveal, wait
 from secretflow.ic.handler.algo import xgb
 from secretflow.ic.handler.protocol_family import phe
 from secretflow.ic.proxy.link_proxy import LinkProxy
+from secretflow.impl.core.util import *
 from secretflow.ml.boost.sgb_v import Sgb, SgbModel
 
 # Copyright 2023 Ant Group Co., Ltd.
