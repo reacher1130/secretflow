@@ -2,9 +2,9 @@ FROM ubuntu:latest as builder
 
 # 安装必要的构建工具和依赖
 RUN apt-get update && apt-get install -y \
-    wget g++ autoconf bison flex git libprotobuf-dev libnl-3-dev \
-    libtool make pkg-config protobuf-compiler pkg-config\
-    && rm -rf /var/lib/apt/lists/*
+    wget g++ autoconf bison flex git libprotobuf-dev libnl-3-dev libnl-genl-3-dev \
+    libtool make pkg-config protobuf-compiler 
+# && rm -rf /var/lib/apt/lists/*
 
 RUN cd / && git clone https://github.com/google/nsjail.git \
     && cd nsjail && git checkout 3.3 -b v3.3 \
