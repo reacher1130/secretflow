@@ -94,7 +94,7 @@ class SgbIcHandler:
             chunks.append(chunk)
 
         df = pd.concat(chunks, ignore_index=True)
-        logging.info("datafame size : {}, dataframe print : {}".format(df.shape, df))
+        logging.info("The size of the data file read is : {}".format(df.shape))
         label_owner = GetParamEnv('label_owner')
         label_name = GetParamEnv('label_name')
         feature_select = ast.literal_eval(GetParamEnv('feature_select'))
@@ -130,7 +130,7 @@ class SgbIcHandler:
         # active_party = LinkProxy.all_parties[active_rank]
         label_owner = GetParamEnv('label_owner')
         assert label_owner in LinkProxy.all_parties
-        print(self._dataset)
+        # print(self._dataset)
 
         v_data = FedNdarray({}, partition_way=PartitionWay.VERTICAL)
 
