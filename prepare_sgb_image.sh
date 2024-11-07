@@ -114,7 +114,11 @@ spec:
       # - command:
       #   - /home/admin/ic_main
       #   - -disable_handshake=1
+        
       - name: sgb
+        env: 
+        - name: system.storage.host.url
+          value: file:///home/kuscia/var/storage
         workingDir: /home/admin
   image:
     id: ${image_id}

@@ -13,25 +13,27 @@ def str_to_bool(s):
 
 
 def GetParamEnv(env_name: str) -> str:
-
     return os.getenv("runtime.component.parameter." + env_name)
 
 
 def get_io_filename_from_env(input: bool) -> str:
-    host_url = os.getenv("system.stortage")
+    host_url = os.getenv("system.storage")
+    logging.info("host_url(system.storage): %s", host_url)
     if not host_url or not host_url.startswith("file://"):
         host_url = os.getenv("system.storage.host.url")
+        logging.info("host_url(system.storage.host.url): %s", host_url)
         if not host_url or not host_url.startswith("file://"):
-            return None
+            raise ValueError("Unable to determine storage URL")
 
-    root_path = host_url[6:]
+    root_path = host_url[7:]
     json_str = (
         os.getenv("runtime.component.input.train_data")
         if input
         else os.getenv("runtime.component.output.train_data")
     )
     if not json_str:
-        return None
+        raise ValueError("Unable to determine JSON string for IO data")
+
     json_object = json.loads(json_str)
     relative_path = json_object["namespace"]
     file_name = json_object["name"]
@@ -54,6 +56,7 @@ def get_input_filename(default_file) -> str:
     input_filename = default_file
     input_optional = get_input_filename_from_env()
     if input_optional is not None:
+
         input_filename = input_optional
     return input_filename
 

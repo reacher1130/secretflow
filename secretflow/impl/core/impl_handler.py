@@ -59,9 +59,10 @@ class SgbIcHandler:
         self._evaluate(model, x, y)
 
     def _process_params(self) -> dict:
-        self_rank = LinkProxy.self_rank
-        active_rank = LinkProxy.recv_rank
-
+        # self_rank = LinkProxy.self_rank
+        # active_rank = LinkProxy.recv_rank
+        self_party = LinkProxy.self_party
+        label_owner = GetParamEnv('label_owner')
         params = {
             "enable_packbits": True,
             "batch_encoding_enabled": False,
@@ -74,7 +75,7 @@ class SgbIcHandler:
             "first_tree_with_label_holder_feature": self._xgb.use_completely_sgb,
         }
 
-        if self_rank == active_rank:
+        if self_party == label_owner:
             params.update(
                 {
                     "objective": self._xgb.objective,
@@ -93,33 +94,43 @@ class SgbIcHandler:
             chunks.append(chunk)
 
         df = pd.concat(chunks, ignore_index=True)
+        logging.info("datafame size : {}, dataframe print : {}".format(df.shape, df))
         label_owner = GetParamEnv('label_owner')
         label_name = GetParamEnv('label_name')
         feature_select = ast.literal_eval(GetParamEnv('feature_select'))
 
         self_party = LinkProxy.self_party
-        self._dataset['label'] = dict()
-        self._dataset['label'].update({label_owner: None})
+        self._dataset['label'] = {
+            label_owner: df[label_name].values if label_owner == self_party else None
+        }
 
-        if label_owner == self_party:
-            self._dataset['label'][self_party] = df[label_name].values
-
-        self._dataset['features'] = dict()
-        for party in LinkProxy.all_parties:
-            if party != self_party:
-                self._dataset['features'].update({party: None})
-            else:
-                self._dataset['features'].update(
-                    {party: df.loc[:, feature_select[party]].values}
-                )
+        # if label_owner == self_party:
+        #     self._dataset['label'][self_party] = df[label_name].values
+        self._dataset['features'] = {
+            party: (
+                df.loc[:, feature_select[party]].values if party == self_party else None
+            )
+            for party in LinkProxy.all_parties
+        }
+        # self._dataset['features'] = dict()
+        # for party in LinkProxy.all_parties:
+        #     if party != self_party:
+        #         self._dataset['features'].update({party: None})
+        #     else:
+        #         self._dataset['features'].update(
+        #             {party: df.loc[:, feature_select[party]].values}
+        #         )
 
     def _process_dataset(self) -> Tuple[FedNdarray, FedNdarray]:
 
         logging.info("+++++++++++++++ process dataset ++++++++++++++++++")
-        self_rank = LinkProxy.self_rank
-        active_rank = LinkProxy.recv_rank
+        # self_rank = LinkProxy.self_rank
+        # active_rank = LinkProxy.recv_rank
         self_party = LinkProxy.self_party
-        active_party = LinkProxy.all_parties[active_rank]
+        # active_party = LinkProxy.all_parties[active_rank]
+        label_owner = GetParamEnv('label_owner')
+        assert label_owner in LinkProxy.all_parties
+        print(self._dataset)
 
         v_data = FedNdarray({}, partition_way=PartitionWay.VERTICAL)
 
@@ -129,11 +140,11 @@ class SgbIcHandler:
             party_pyu = sf.PYU(party)
             v_data.partitions.update({party_pyu: party_pyu(lambda: feature)()})
 
-        assert active_party in self._dataset['label']
-        y = self._dataset['label'][active_party]
-        if self_party == active_party:
+        assert label_owner in self._dataset['label']
+        y = self._dataset['label'][label_owner]
+        if self_party == label_owner:
             assert y is not None
-        party_pyu = sf.PYU(active_party)
+        party_pyu = sf.PYU(label_owner)
         label_data = FedNdarray(
             {
                 party_pyu: party_pyu(lambda: y)(),
