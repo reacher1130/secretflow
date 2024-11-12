@@ -59,10 +59,13 @@ class SgbIcHandler:
         self._evaluate(model, x, y)
 
     def _process_params(self) -> dict:
-        # self_rank = LinkProxy.self_rank
-        # active_rank = LinkProxy.recv_rank
         self_party = LinkProxy.self_party
         label_owner = GetParamEnv('label_owner')
+        if label_owner is None:
+            raise ValueError("Label owner must be specified.")
+        if label_owner not in LinkProxy.all_parties:
+            raise ValueError("Invalid label owner.")
+
         params = {
             "enable_packbits": True,
             "batch_encoding_enabled": False,
@@ -104,33 +107,19 @@ class SgbIcHandler:
             label_owner: df[label_name].values if label_owner == self_party else None
         }
 
-        # if label_owner == self_party:
-        #     self._dataset['label'][self_party] = df[label_name].values
         self._dataset['features'] = {
             party: (
                 df.loc[:, feature_select[party]].values if party == self_party else None
             )
             for party in LinkProxy.all_parties
         }
-        # self._dataset['features'] = dict()
-        # for party in LinkProxy.all_parties:
-        #     if party != self_party:
-        #         self._dataset['features'].update({party: None})
-        #     else:
-        #         self._dataset['features'].update(
-        #             {party: df.loc[:, feature_select[party]].values}
-        #         )
 
     def _process_dataset(self) -> Tuple[FedNdarray, FedNdarray]:
 
         logging.info("+++++++++++++++ process dataset ++++++++++++++++++")
-        # self_rank = LinkProxy.self_rank
-        # active_rank = LinkProxy.recv_rank
         self_party = LinkProxy.self_party
-        # active_party = LinkProxy.all_parties[active_rank]
         label_owner = GetParamEnv('label_owner')
         assert label_owner in LinkProxy.all_parties
-        # print(self._dataset)
 
         v_data = FedNdarray({}, partition_way=PartitionWay.VERTICAL)
 

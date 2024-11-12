@@ -13,7 +13,12 @@ def str_to_bool(s):
 
 
 def GetParamEnv(env_name: str) -> str:
-    return os.getenv("runtime.component.parameter." + env_name)
+    env_value = os.getenv("runtime.component.parameter." + env_name)
+    if env_value is None:
+        raise ValueError(
+            f"Environment variable 'runtime.component.parameter.{env_name}' not found."
+        )
+    return env_value
 
 
 def get_io_filename_from_env(input: bool) -> str:
